@@ -1,6 +1,4 @@
 import logging
-import os
-import cv2
 from typing import List
 from src.Movie import Movie
 
