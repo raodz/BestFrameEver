@@ -8,7 +8,7 @@ class Movie:
     A class to represent a movie and manage video using OpenCV.
     """
 
-    def __init__(self, name: str, actors: list[str] | None) -> None:
+    def __init__(self, name: str, actors: list[str] | None = None) -> None:
         """
         Initialize the Movie object.
 
@@ -16,7 +16,7 @@ class Movie:
         :param actors: A list of actors in the movie.
         """
         self.name: str = name
-        self.actors: list[str] = actors
+        self.actors: list[str] = actors if actors is not None else []
         self.cap: cv2.VideoCapture | None = None
 
     def read_video(self, file_path: str) -> bool:
