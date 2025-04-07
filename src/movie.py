@@ -19,21 +19,24 @@ class Movie:
         self.actors: list[str] = actors if actors is not None else []
         self.cap: cv2.VideoCapture | None = None
 
-    def read_video(self, file_path: str) -> bool:
+    def read_video(self, file_path: str) -> "Movie":
         """
-        Open a video file.
+    Open a video file and initialize the capture object.
 
-        :param file_path: The path to the video file.
-        :return: True if the video is successfully opened, False otherwise.
-        """
+    Args:
+        file_path (str): The path to the video file.
+
+    Returns:
+        Movie: The Movie instance with initialized video capture.
+    """
         self.cap = cv2.VideoCapture(file_path)
 
         if not self.cap.isOpened():
             logging.error(f"Could not open video file at {file_path}")
-            return False
+        else:
+            logging.info(f"Video opened successfully from {file_path}")
 
-        logging.info(f"Video opened successfully from {file_path}")
-        return True
+        return self
 
     def get_frame(self) -> np.ndarray | None:
         """
