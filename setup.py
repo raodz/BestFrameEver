@@ -1,6 +1,7 @@
 from setuptools import find_packages, setup
 
 
+
 def parse_requirements(filename):
     with open(filename, "r") as file:
         return [

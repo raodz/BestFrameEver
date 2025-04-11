@@ -3,6 +3,7 @@ import cv2
 from typing import List, Optional
 
 
+
 class Movie:
     """
     A class to represent a movie and manage video playback using OpenCV.
