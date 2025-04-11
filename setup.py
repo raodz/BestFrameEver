@@ -1,12 +1,9 @@
 from setuptools import find_packages, setup
 
 
-
 def parse_requirements(filename):
     with open(filename, "r") as file:
-        return [
-            line.strip() for line in file if line and not line.startswith("#")
-        ]
+        return [line.strip() for line in file if line and not line.startswith("#")]
 
 
 requirements = parse_requirements("requirements.txt")
