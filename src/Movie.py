@@ -1,6 +1,7 @@
 import logging
-import cv2
 from typing import List, Optional
+
+import cv2
 
 
 class Movie:
