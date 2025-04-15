@@ -15,8 +15,8 @@ setup(
     install_requires=requirements,
     author="raodz, jakub1090cn, skrzypczykt",
     author_email="raodziem@gmail.com",
-    description="A machine learning project for classifying individuals as bald or not based on facial images.",
-    url="https://github.com/raodz/BaldOrNot",
+    description="A machine learning project for selecting the best frame for movie's representation.",
+    url="https://github.com/raodz/BestFrameEver",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
