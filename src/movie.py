@@ -1,15 +1,14 @@
 import logging
-from typing import List, Optional
-
+import numpy as np
 import cv2
 
 
 class Movie:
     """
-    A class to represent a movie and manage video playback using OpenCV.
+    A class to represent a movie and manage video using OpenCV.
     """
 
-    def __init__(self, name: str, actors: List[str]) -> None:
+    def __init__(self, name: str, actors: list[str] | None = None) -> None:
         """
         Initialize the Movie object.
 
@@ -17,30 +16,33 @@ class Movie:
         :param actors: A list of actors in the movie.
         """
         self.name: str = name
-        self.actors: List[str] = actors
-        self.cap: Optional[cv2.VideoCapture] = None
+        self.actors: list[str] = actors if actors is not None else []
+        self.cap: cv2.VideoCapture | None = None
 
-    def read_video(self, file_path: str) -> bool:
+    def read_video(self, file_path: str) -> "Movie":
         """
-        Open a video file for playback.
+    Open a video file and initialize the capture object.
 
-        :param file_path: The path to the video file.
-        :return: True if the video is successfully opened, False otherwise.
-        """
+    Args:
+        file_path (str): The path to the video file.
+
+    Returns:
+        Movie: The Movie instance with initialized video capture.
+    """
         self.cap = cv2.VideoCapture(file_path)
 
         if not self.cap.isOpened():
             logging.error(f"Could not open video file at {file_path}")
-            return False
+        else:
+            logging.info(f"Video opened successfully from {file_path}")
 
-        logging.info(f"Video opened successfully from {file_path}")
-        return True
+        return self
 
-    def get_frame(self) -> Optional[cv2.Mat]:
+    def get_frame(self) -> np.ndarray | None:
         """
         Retrieve the next frame from the video.
 
-        :return: The next frame as a numpy array (cv2.Mat), or None if no more frames are available or an error occurs.
+        :return: The next frame as a numpy array, or None if no more frames are available or an error occurs.
         """
         if self.cap is None or not self.cap.isOpened():
             logging.error("Video capture is not initialized or already released")
@@ -61,7 +63,7 @@ class Movie:
             self.cap.release()
             logging.info("Video capture released")
         else:
-            logging.info("Video capture is not initialized or already released")
+            logging.warning("Video capture is not initialized or already released")
 
     def __del__(self) -> None:
         """
