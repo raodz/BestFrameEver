@@ -1,6 +1,7 @@
 import logging
-import numpy as np
+
 import cv2
+import numpy as np
 
 
 class Movie:
@@ -21,14 +22,14 @@ class Movie:
 
     def read_video(self, file_path: str) -> "Movie":
         """
-    Open a video file and initialize the capture object.
+        Open a video file and initialize the capture object.
 
-    Args:
-        file_path (str): The path to the video file.
+        Args:
+            file_path (str): The path to the video file.
 
-    Returns:
-        Movie: The Movie instance with initialized video capture.
-    """
+        Returns:
+            Movie: The Movie instance with initialized video capture.
+        """
         self.cap = cv2.VideoCapture(file_path)
 
         if not self.cap.isOpened():
@@ -70,4 +71,3 @@ class Movie:
         Destructor to ensure resources are released when the object is deleted.
         """
         self.release()
-        logging.info(f"Movie object '{self.name}' is being deleted")
