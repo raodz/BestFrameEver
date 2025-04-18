@@ -9,8 +9,10 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -25,9 +27,9 @@ jobs:
           black --check .
           isort --check-only .
 
-      - name: Run tests (PYTHONPATH)
+      - name: Run tests
         run: |
           echo "PYTHONPATH before: $PYTHONPATH"
-          export PYTHONPATH=$GITHUB_WORKSPACE/src
+          export PYTHONPATH=$GITHUB_WORKSPACE
           echo "PYTHONPATH after: $PYTHONPATH"
           pytest
