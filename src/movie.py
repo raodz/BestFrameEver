@@ -11,7 +11,7 @@ class Movie:
 
     def __init__(self, name: str, actors: list[str] | None = None) -> None:
         """
-        Initialize the Movie object.
+        Initialize the movie object.
 
         :param name: The name of the movie.
         :param actors: A list of actors in the movie.
@@ -20,7 +20,7 @@ class Movie:
         self.actors: list[str] = actors if actors is not None else []
         self.cap: cv2.VideoCapture | None = None
 
-    def read_video(self, file_path: str) -> "Movie":
+    def read_video(self, file_path: str) -> "movie":
         """
         Open a video file and initialize the capture object.
 
@@ -28,7 +28,7 @@ class Movie:
             file_path (str): The path to the video file.
 
         Returns:
-            Movie: The Movie instance with initialized video capture.
+            movie: The movie instance with initialized video capture.
         """
         self.cap = cv2.VideoCapture(file_path)
 

@@ -9,17 +9,30 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: "3.9"
+          python-version: "3.12"
+
       - name: Install dependencies
         run: pip install -r requirements.txt
+
       - name: Lint (black, isort)
         run: |
           black --check .
           isort --check-only .
-      - name: Run tests (pytest)
-        run: pytest
+
+      - name: Download test videos from feature/frameset branch
+        run: |
+          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/feature/frameset/tests/sample_avi_video.avi -o tests/sample_avi_video.avi
+          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/feature/frameset/tests/sample_mp4_video.mp4 -o tests/sample_mp4_video.mp4
+
+      - name: Run tests
+        run: |
+          export PYTHONPATH=$GITHUB_WORKSPACE
+          pytest
