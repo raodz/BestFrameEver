@@ -2,11 +2,11 @@ import numpy as np
 import pytest
 
 from src.framesetgenerator import FrameSetGenerator
-from src.Movie import Movie
+from src.movie import Movie
 
 
 def test_frameset_initialization(sample_video_path):
-    movie = Movie("InitMovie", [])
+    movie = Movie("Initmovie", actors=[])
     movie.read_video(sample_video_path)
     fsg = FrameSetGenerator(movie)
 
@@ -15,7 +15,7 @@ def test_frameset_initialization(sample_video_path):
 
 
 def test_get_all_frames_with_frequency_1(sample_video_path):
-    movie = Movie("Freq1", [])
+    movie = Movie("Freq1", actors=[])
     movie.read_video(sample_video_path)
     fsg = FrameSetGenerator(movie)
     fsg.get_all_frames(frequency=1)
@@ -25,7 +25,7 @@ def test_get_all_frames_with_frequency_1(sample_video_path):
 
 
 def test_get_all_frames_with_frequency_5(sample_video_path):
-    movie = Movie("Freq5", [])
+    movie = Movie("Freq5", actors=[])
     movie.read_video(sample_video_path)
     fsg = FrameSetGenerator(movie)
     fsg.get_all_frames(frequency=5)
@@ -41,7 +41,7 @@ def test_get_all_frames_with_frequency_5(sample_video_path):
 
 
 def test_get_all_frames_invalid_frequency_raises(sample_video_path):
-    movie = Movie("InvalidFreq", [])
+    movie = Movie("InvalidFreq", actors=[])
     movie.read_video(sample_video_path)
     fsg = FrameSetGenerator(movie)
 
@@ -50,7 +50,7 @@ def test_get_all_frames_invalid_frequency_raises(sample_video_path):
 
 
 def test_indexing_frameset(sample_video_path):
-    movie = Movie("IndexTest", [])
+    movie = Movie("IndexTest", actors=[])
     movie.read_video(sample_video_path)
     fsg = FrameSetGenerator(movie)
     fsg.get_all_frames(frequency=2)

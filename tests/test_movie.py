@@ -2,19 +2,19 @@ import os
 
 import numpy as np
 
-from src.Movie import Movie
+from src.movie import Movie
 
 
 def test_movie_initialization(sample_video_path):
-    movie = Movie(name="Test Movie", actors=["Actor A", "Actor B"])
-    assert movie.name == "Test Movie"
+    movie = Movie(name="Test movie", actors=["Actor A", "Actor B"])
+    assert movie.name == "Test movie"
     assert movie.actors == ["Actor A", "Actor B"]
     assert movie.cap is None
 
 
 def test_read_video_success(sample_video_path):
     assert os.path.isfile(sample_video_path), f"Plik nie istnieje: {sample_video_path}"
-    movie = Movie("Test Movie", actors=[])
+    movie = Movie("Test movie", actors=[])
     result = movie.read_video(sample_video_path)
     assert result is True
     assert movie.cap is not None
@@ -24,7 +24,7 @@ def test_read_video_success(sample_video_path):
 def test_read_video_failure(tmp_path):
     fake_path = tmp_path / "not_a_video.mp4"
     fake_path.write_text("not really a video")
-    movie = Movie("Bad Movie", actors=[])
+    movie = Movie("Bad movie", actors=[])
     result = movie.read_video(str(fake_path))
     assert result is False
     assert movie.cap is not None

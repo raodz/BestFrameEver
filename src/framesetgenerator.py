@@ -1,6 +1,6 @@
 import logging
 
-from src.Movie import Movie
+from src.movie import Movie
 
 
 class FrameSetGenerator:
@@ -9,15 +9,15 @@ class FrameSetGenerator:
     Responsible only for frame management and access — not analysis.
 
     Attributes:
-        movie (Movie): The Movie object used to retrieve frames.
+        movie (movie): The movie object used to retrieve frames.
         frames (list): List of all frames in the movie.
     """
 
     def __init__(self, movie: Movie):
         """
-        Initialize the FrameSet with a Movie instance.
+        Initialize the FrameSet with a movie instance.
 
-        :param movie: A Movie object providing access to the video.
+        :param movie: A movie object providing access to the video.
         """
         self.movie = movie
         self.frames = []
