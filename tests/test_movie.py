@@ -1,15 +1,8 @@
-import pytest
-import numpy as np
-from src.Movie import Movie
 import os
 
+import numpy as np
 
-@pytest.fixture(params=[
-    'sample_avi_video.avi',
-    'sample_mp4_video.mp4'
-])
-def sample_video_path(request):
-    return request.param
+from src.Movie import Movie
 
 
 def test_movie_initialization(sample_video_path):
@@ -20,9 +13,8 @@ def test_movie_initialization(sample_video_path):
 
 
 def test_read_video_success(sample_video_path):
-    assert os.path.isfile(
-        sample_video_path), f"Plik nie istnieje: {sample_video_path}"
-    movie = Movie("Test Movie", [])
+    assert os.path.isfile(sample_video_path), f"Plik nie istnieje: {sample_video_path}"
+    movie = Movie("Test Movie", actors=[])
     result = movie.read_video(sample_video_path)
     assert result is True
     assert movie.cap is not None
@@ -32,7 +24,7 @@ def test_read_video_success(sample_video_path):
 def test_read_video_failure(tmp_path):
     fake_path = tmp_path / "not_a_video.mp4"
     fake_path.write_text("not really a video")
-    movie = Movie("Bad Movie", [])
+    movie = Movie("Bad Movie", actors=[])
     result = movie.read_video(str(fake_path))
     assert result is False
     assert movie.cap is not None
@@ -40,7 +32,7 @@ def test_read_video_failure(tmp_path):
 
 
 def test_get_frame_returns_frame(sample_video_path):
-    movie = Movie("Frame Test", [])
+    movie = Movie("Frame Test", actors=[])
     movie.read_video(sample_video_path)
 
     frame = movie.get_frame()
@@ -51,13 +43,13 @@ def test_get_frame_returns_frame(sample_video_path):
 
 
 def test_get_frame_no_video():
-    movie = Movie("Empty", [])
+    movie = Movie("Empty", actors=[])
     frame = movie.get_frame()
     assert frame is None
 
 
 def test_release_logs(caplog, sample_video_path):
-    movie = Movie("Release Test", [])
+    movie = Movie("Release Test", actors=[])
     movie.read_video(sample_video_path)
 
     with caplog.at_level("INFO"):
@@ -66,7 +58,7 @@ def test_release_logs(caplog, sample_video_path):
 
 
 def test_double_release_no_error(caplog, sample_video_path):
-    movie = Movie("Double Release", [])
+    movie = Movie("Double Release", actors=[])
     movie.read_video(sample_video_path)
 
     movie.release()
