@@ -21,5 +21,9 @@ jobs:
         run: |
           black --check .
           isort --check-only .
-      - name: Run tests (pytest)
-        run: pytest
+      - name: Run tests (PYTHONPATH)
+        run: |
+    echo "PYTHONPATH before: $PYTHONPATH"
+    export PYTHONPATH=$GITHUB_WORKSPACE/src
+    echo "PYTHONPATH after: $PYTHONPATH"
+    pytest
