@@ -1,16 +1,15 @@
 import logging
-from typing import List
+
 from src.Movie import Movie
 
 
-class FrameSet:
+class FrameSetGenerator:
     """
     A lightweight class representing a set of frames extracted from a video.
     Responsible only for frame management and access — not analysis.
 
     Attributes:
         movie (Movie): The Movie object used to retrieve frames.
-        frames (List): The list of frames (as np.ndarrays) extracted from the video.
     """
 
     def __init__(self, movie: Movie):
@@ -20,7 +19,6 @@ class FrameSet:
         :param movie: A Movie object providing access to the video.
         """
         self.movie = movie
-        self.frames: List = []
 
     def get_all_frames(self, frequency: int):
         """
