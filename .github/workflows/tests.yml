@@ -22,4 +22,4 @@ jobs:
           black --check .
           isort --check-only .
       - name: Run tests (pytest)
-        run: pytest
+        run: PYTHONPATH=src pytest
