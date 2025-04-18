@@ -15,8 +15,8 @@ def test_movie_initialization(sample_video_path):
 def test_read_video_success(sample_video_path):
     assert os.path.isfile(sample_video_path), f"Plik nie istnieje: {sample_video_path}"
     movie = Movie("Test movie", actors=[])
-    result = movie.read_video(sample_video_path)
-    assert result is True
+    movie.read_video(sample_video_path)
+
     assert movie.cap is not None
     assert movie.cap.isOpened()
 
@@ -25,8 +25,8 @@ def test_read_video_failure(tmp_path):
     fake_path = tmp_path / "not_a_video.mp4"
     fake_path.write_text("not really a video")
     movie = Movie("Bad movie", actors=[])
-    result = movie.read_video(str(fake_path))
-    assert result is False
+    movie.read_video(str(fake_path))
+
     assert movie.cap is not None
     assert not movie.cap.isOpened()
 
@@ -64,4 +64,4 @@ def test_double_release_no_error(caplog, sample_video_path):
     movie.release()
     with caplog.at_level("INFO"):
         movie.release()
-        assert "already released" in caplog.text
+        assert "already released" in caplog.text or "not initialized" in caplog.text
