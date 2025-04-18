@@ -22,4 +22,4 @@ jobs:
           black --check .
           isort --check-only .
       - name: Run tests (pytest)
-        run: PYTHONPATH=src pytest
+        run: PYTHONPATH=$GITHUB_WORKSPACE/src pytest
