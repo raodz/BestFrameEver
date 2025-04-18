@@ -10,6 +10,7 @@ class FrameSetGenerator:
 
     Attributes:
         movie (Movie): The Movie object used to retrieve frames.
+        frames (list): List of all frames in the movie.
     """
 
     def __init__(self, movie: Movie):
@@ -19,6 +20,7 @@ class FrameSetGenerator:
         :param movie: A Movie object providing access to the video.
         """
         self.movie = movie
+        self.frames = []
 
     def get_all_frames(self, frequency: int):
         """
