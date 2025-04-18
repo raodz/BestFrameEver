@@ -27,9 +27,12 @@ jobs:
           black --check .
           isort --check-only .
 
+      - name: Download test videos from feature/frameset branch
+        run: |
+          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/feature/frameset/tests/sample_avi_video.avi -o tests/sample_avi_video.avi
+          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/feature/frameset/tests/sample_mp4_video.mp4 -o tests/sample_mp4_video.mp4
+
       - name: Run tests
         run: |
-          echo "PYTHONPATH before: $PYTHONPATH"
           export PYTHONPATH=$GITHUB_WORKSPACE
-          echo "PYTHONPATH after: $PYTHONPATH"
           pytest
