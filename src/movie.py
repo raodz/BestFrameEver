@@ -20,7 +20,7 @@ class Movie:
         self.actors: list[str] = actors if actors is not None else []
         self.cap: cv2.VideoCapture | None = None
 
-    def read_video(self, file_path: str) -> "movie":
+    def read_video(self, file_path: str) -> "Movie":
         """
         Open a video file and initialize the capture object.
 
