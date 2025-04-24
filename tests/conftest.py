@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from src.framesetcreator import FrameSetCreator
+from src.frames_list_creator import FramesListCreator
 from src.movie import Movie
 
 
@@ -25,4 +25,4 @@ def unloaded_movie():
 
 @pytest.fixture
 def frame_set_creator(movie):
-    return FrameSetCreator(movie)
+    return FramesListCreator(movie)
