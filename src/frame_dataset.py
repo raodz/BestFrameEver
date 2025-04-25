@@ -1,5 +1,4 @@
 import os
-from typing import Callable, Optional
 
 import numpy as np
 import torch
@@ -51,15 +50,15 @@ class FrameDataset(Dataset):
 
 def main():
     movie = Movie("The Sample", actors=[])
-    movie.read_video(os.path.join(os.path.dirname(__file__), "sample_mp4_video.mp4"))
+    movie.read_video(os.path.join(os.path.dirname(__file__), "sample_avi_video.avi"))
     frame = movie.get_frame()
-    # print(type(frame), frame.shape, np.unique(frame))
-    flc = FramesListCreator(movie)
-    frames_list = flc.create_frames_list(every_nth_frame=50)
-    print(frames_list[0])
-    fds = FrameDataset(frames_list)
-    some_frame = fds.__getitem__(11)
-    print(some_frame)
+    print(type(frame), frame.shape, np.unique(frame))
+    # flc = FramesListCreator(movie)
+    # frames_list = flc.create_frames_list(every_nth_frame=50)
+    # print(frames_list[0])
+    # flc = FrameDataset(frames_list)
+    # some_frame = flc.__getitem__(11)
+    # print(some_frame)
 
 
 main()
