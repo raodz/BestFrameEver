@@ -24,5 +24,5 @@ def unloaded_movie():
 
 
 @pytest.fixture
-def frame_set_creator(movie):
+def flc(movie):
     return FramesListCreator(movie)
