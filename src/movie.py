@@ -28,7 +28,7 @@ class Movie:
             file_path (str): The path to the video file.
 
         Returns:
-            Movie: The Movie instance with initialized video capture.
+            movie: The Movie instance with initialized video capture.
         """
         self.cap = cv2.VideoCapture(file_path)
 
