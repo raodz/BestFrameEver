@@ -7,3 +7,6 @@ pip==24.2
 black==23.1.0
 isort==5.11.4
 pre-commit==2.20.0
+torch~=2.6.0
+torchvision~=0.21.0
+setuptools~=75.1.0
