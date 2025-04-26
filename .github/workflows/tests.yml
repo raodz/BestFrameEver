@@ -29,8 +29,8 @@ jobs:
 
       - name: Download test videos from feature/frameset branch
         run: |
-          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/tree/main/tests/sample_avi_video.avi -o tests/sample_avi_video.avi
-          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/tree/main/tests/sample_mp4_video.mp4 -o tests/sample_mp4_video.mp4
+          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/sample_avi_video.avi -o tests/sample_avi_video.avi
+          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/sample_mp4_video.mp4 -o tests/sample_mp4_video.mp4
 
       - name: Run tests
         run: |
