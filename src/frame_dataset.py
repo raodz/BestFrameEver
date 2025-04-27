@@ -54,7 +54,7 @@ def main():
         os.path.join(os.path.dirname(__file__), "sample_avi_video.avi"),
         actors=[],
     )
-    movie.read_video()
+
     frame = movie.get_frame()
     print(type(frame), frame.shape, np.unique(frame))
     # flc = FramesListCreator(movie)
