@@ -21,23 +21,24 @@ class Movie:
         self.name: str = name
         self.file_path: str = file_path
         self.actors: list[str] = actors if actors is not None else []
-        self.cap: cv2.VideoCapture | None = None
+        self._cap: cv2.VideoCapture | None = None
 
-    def read_video(self) -> "Movie":
+    @property
+    def cap(self) -> cv2.VideoCapture | None:
         """
-        Open a video file and initialize the capture object.
+        Get the video capture object.
 
         Returns:
-            movie: The Movie instance with initialized video capture.
+            cv2.VideoCapture: The video capture object.
         """
-        self.cap = cv2.VideoCapture(self.file_path)
-
-        if not self.cap.isOpened():
-            logging.error(f"Could not open video file at {self.file_path}")
-        else:
-            logging.info(f"Video opened successfully from {self.file_path}")
-
-        return self
+        if self._cap is None:
+            self._cap = cv2.VideoCapture(self.file_path)
+            if not self._cap.isOpened():
+                logging.error(f"Could not open video file at {self.file_path}")
+                self._cap = None
+            else:
+                logging.info(f"Video opened successfully from {self.file_path}")
+        return self._cap
 
     def get_frame(self) -> np.ndarray | None:
         """
@@ -60,9 +61,10 @@ class Movie:
         """
         Release the resources associated with the video capture object.
         """
-        if self.cap is not None and self.cap.isOpened():
-            self.cap.release()
+        if self._cap is not None and self._cap.isOpened():
+            self._cap.release()
             logging.info("Video capture released")
+            self._cap = None
         else:
             logging.warning("Video capture is not initialized or already released")
 
