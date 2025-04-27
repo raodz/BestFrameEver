@@ -14,7 +14,6 @@ def sample_video_path(request):
 @pytest.fixture
 def movie(sample_video_path):
     movie = Movie("Freq1", sample_video_path, actors=[])
-    movie.read_video()
     return movie
 
 
