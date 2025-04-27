@@ -9,7 +9,9 @@ class Movie:
     A class to represent a movie and manage video using OpenCV.
     """
 
-    def __init__(self, name: str, actors: list[str] | None = None) -> None:
+    def __init__(
+        self, name: str, file_path: str, actors: list[str] | None = None
+    ) -> None:
         """
         Initialize the Movie object.
 
@@ -17,25 +19,23 @@ class Movie:
         :param actors: A list of actors in the movie.
         """
         self.name: str = name
+        self.file_path: str = file_path
         self.actors: list[str] = actors if actors is not None else []
         self.cap: cv2.VideoCapture | None = None
 
-    def read_video(self, file_path: str) -> "Movie":
+    def read_video(self) -> "Movie":
         """
         Open a video file and initialize the capture object.
-
-        Args:
-            file_path (str): The path to the video file.
 
         Returns:
             movie: The Movie instance with initialized video capture.
         """
-        self.cap = cv2.VideoCapture(file_path)
+        self.cap = cv2.VideoCapture(self.file_path)
 
         if not self.cap.isOpened():
-            logging.error(f"Could not open video file at {file_path}")
+            logging.error(f"Could not open video file at {self.file_path}")
         else:
-            logging.info(f"Video opened successfully from {file_path}")
+            logging.info(f"Video opened successfully from {self.file_path}")
 
         return self
 
