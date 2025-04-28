@@ -13,14 +13,14 @@ def sample_video_path(request):
 
 @pytest.fixture
 def movie(sample_video_path):
-    movie = Movie("Freq1", actors=[])
-    movie.read_video(sample_video_path)
+    movie = Movie("Freq1", sample_video_path, actors=[])
     return movie
 
 
 @pytest.fixture
-def unloaded_movie():
-    return Movie("Unloaded", actors=[])
+def unloaded_movie(tmp_path):
+    fake_path = tmp_path / "unloaded.mp4"
+    return Movie("Unloaded", str(fake_path), actors=[])
 
 
 @pytest.fixture

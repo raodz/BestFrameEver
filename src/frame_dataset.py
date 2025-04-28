@@ -49,8 +49,12 @@ class FrameDataset(Dataset):
 
 
 def main():
-    movie = Movie("The Sample", actors=[])
-    movie.read_video(os.path.join(os.path.dirname(__file__), "sample_avi_video.avi"))
+    movie = Movie(
+        "The Sample",
+        os.path.join(os.path.dirname(__file__), "sample_avi_video.avi"),
+        actors=[],
+    )
+
     frame = movie.get_frame()
     print(type(frame), frame.shape, np.unique(frame))
     # flc = FramesListCreator(movie)

@@ -1,27 +1,28 @@
+import cv2
 import numpy as np
 
 from src.movie import Movie
 
 
-def test_movie_initialization():
-    movie = Movie(name="Test movie", actors=["Actor A", "Actor B"])
+def test_movie_initialization(tmp_path):
+    fake_path = tmp_path / "test.mp4"
+    movie = Movie(
+        name="Test movie", file_path=str(fake_path), actors=["Actor A", "Actor B"]
+    )
     assert movie.name == "Test movie"
+    assert movie.file_path == str(fake_path)
     assert movie.actors == ["Actor A", "Actor B"]
-    assert movie.cap is None
+    assert movie._cap is None
 
 
-def test_read_video_success(movie):
-    assert movie.cap is not None
+def test_cap_initialization_success(movie):
+    assert isinstance(movie.cap, cv2.VideoCapture)
     assert movie.cap.isOpened()
 
 
-def test_read_video_failure(tmp_path, unloaded_movie):
-    fake_path = tmp_path / "not_a_video.mp4"
-    fake_path.write_text("not really a video")
-    unloaded_movie.read_video(str(fake_path))
-
-    assert unloaded_movie.cap is not None
-    assert not unloaded_movie.cap.isOpened()
+def test_cap_initialization_failure(unloaded_movie):
+    assert unloaded_movie.cap is None
+    assert unloaded_movie._cap is None
 
 
 def test_get_frame_returns_frame(movie):
@@ -38,6 +39,7 @@ def test_get_frame_no_video(unloaded_movie):
 
 
 def test_release_logs(caplog, movie):
+    movie.cap
     with caplog.at_level("INFO"):
         movie.release()
         assert (
