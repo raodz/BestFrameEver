@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import torch.nn as nn
 from torchvision import models
@@ -49,3 +50,23 @@ class FeatureExtractor(nn.Module):
         x = self.resnet.layer4(x)
         x = self.adaptive_pool(x)
         return x
+
+
+class YOLODetector:
+    def __init__(self):
+        pass
+
+
+class FaceFeatureExtractor(FeatureExtractor):
+    def __init__(self):
+        super().__init__()
+        self.global_pool = nn.AdaptiveAvgPool2d(1)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Returns an embedding of the face image.
+        """
+        pass
+
+    def extract(self, face_image: np.ndarray) -> np.ndarray:
+        pass
