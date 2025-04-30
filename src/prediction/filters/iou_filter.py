@@ -1,7 +1,6 @@
 from typing import Dict
 
-from src.constants import MAX_MAIN_CHAR_IOU, MIN_MAIN_CHAR_IOU
-from src.frame_dataset import FrameDataset
+from src.dataset_preparing.frame_dataset import FrameDataset
 
 
 class IoUFilter:

@@ -1,6 +1,6 @@
 from typing import Dict, List, Tuple
 
-from src.frame_dataset import FrameDataset
+from src.dataset_preparing.frame_dataset import FrameDataset
 
 
 class FaceDetector:

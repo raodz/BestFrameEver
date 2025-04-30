@@ -1,7 +1,6 @@
 from typing import Dict
 
-from src.constants import MAX_NUM_FACES_AT_FRAME, MIN_NUM_FACES_AT_FRAME
-from src.frame_dataset import FrameDataset
+from src.dataset_preparing.frame_dataset import FrameDataset
 
 
 class FaceFilter:

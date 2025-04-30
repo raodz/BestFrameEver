@@ -1,12 +1,6 @@
-import os
-
-import cv2
 import numpy as np
 import torch
 from torch.utils.data import Dataset
-
-from src.frames_list_creator import FramesListCreator
-from src.movie import Movie
 
 
 class FrameDataset(Dataset):
