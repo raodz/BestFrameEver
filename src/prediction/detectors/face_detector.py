@@ -1,13 +1,7 @@
-from typing import Dict, List, Tuple
-
 from src.dataset_preparing.frame_dataset import FrameDataset
+from src.prediction.detectors.base_frame_detector import BaseFrameDetector
 
 
-class FaceDetector:
-    def __init__(self, dataset: FrameDataset):
-        self.dataset = dataset
-
-    def detect_faces_per_frame(
-        self,
-    ) -> Dict[int, List[Tuple[float, float, float, float]]]:
+class FaceDetector(BaseFrameDetector):
+    def detect(self, dataset: FrameDataset) -> dict[int, bool]:
         pass
