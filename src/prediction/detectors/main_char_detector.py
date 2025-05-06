@@ -1,13 +1,7 @@
-from typing import Dict, Tuple
-
 from src.dataset_preparing.frame_dataset import FrameDataset
+from src.prediction.detectors.base_frame_detector import BaseFrameDetector
 
 
-class MainCharacterDetector:
-    def __init__(self, dataset: FrameDataset):
-        self.dataset = dataset
-
-    def detect_main_char_per_frame(
-        self,
-    ) -> Dict[int, Tuple[float, float, float, float] | None]:
+class MainCharacterDetector(BaseFrameDetector):
+    def detect(self, dataset: FrameDataset) -> dict[int, bool]:
         pass

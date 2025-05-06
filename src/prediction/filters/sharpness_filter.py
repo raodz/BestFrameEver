@@ -1,12 +1,18 @@
-from typing import Dict
-
 from src.dataset_preparing.frame_dataset import FrameDataset
+from src.prediction.detectors.sharpness_detector import SharpnessDetector
+from src.prediction.filters.base_frame_filter import BaseFrameFilter
 
 
-class SharpnessFilter:
-    def __init__(self, dataset: FrameDataset, sharp_status_by_frame: Dict[int, bool]):
-        self.dataset = dataset
-        self.sharp_status_by_frame = sharp_status_by_frame
+class SharpnessFilter(BaseFrameFilter):
+    def _init_detector(self) -> SharpnessDetector:
+        return SharpnessDetector()
 
-    def filter_sharp_frames(self) -> FrameDataset:
+    def _get_filtering_conditions(
+        self, dataset: FrameDataset, detector: SharpnessDetector
+    ) -> dict[int, bool]:
+        return detector.detect(dataset)
+
+    def _filter_dataset(
+        self, dataset: FrameDataset, filtering_conditions: dict[int, bool]
+    ) -> FrameDataset:
         pass

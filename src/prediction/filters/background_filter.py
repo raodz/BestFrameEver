@@ -1,14 +1,18 @@
-from typing import Dict
-
 from src.dataset_preparing.frame_dataset import FrameDataset
+from src.prediction.detectors.background_detector import BackgroundDetector
+from src.prediction.filters.base_frame_filter import BaseFrameFilter
 
 
-class BackgroundFilter:
-    def __init__(
-        self, dataset: FrameDataset, background_status_by_frame: Dict[int, bool]
-    ):
-        self.dataset = dataset
-        self.background_status_by_frame = background_status_by_frame
+class BackgroundFilter(BaseFrameFilter):
+    def _init_detector(self) -> BackgroundDetector:
+        return BackgroundDetector()
 
-    def filter_bg_valid_frames(self) -> FrameDataset:
+    def _get_filtering_conditions(
+        self, dataset: FrameDataset, detector: BackgroundDetector
+    ) -> dict[int, bool]:
+        return detector.detect(dataset)
+
+    def _filter_dataset(
+        self, dataset: FrameDataset, filtering_conditions: dict[int, bool]
+    ) -> FrameDataset:
         pass

@@ -1,11 +1,7 @@
-from typing import Dict
-
 from src.dataset_preparing.frame_dataset import FrameDataset
+from src.prediction.detectors.base_frame_detector import BaseFrameDetector
 
 
-class BackgroundDetector:
-    def __init__(self, dataset: FrameDataset):
-        self.dataset = dataset
-
-    def detect_bg_valid_frames(self) -> Dict[int, bool]:
+class BackgroundDetector(BaseFrameDetector):
+    def detect(self, dataset: FrameDataset) -> dict[int, bool]:
         pass

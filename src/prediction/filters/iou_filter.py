@@ -1,12 +1,18 @@
-from typing import Dict
-
 from src.dataset_preparing.frame_dataset import FrameDataset
+from src.prediction.detectors.iou_detector import IoUDetector
+from src.prediction.filters.base_frame_filter import BaseFrameFilter
 
 
-class IoUFilter:
-    def __init__(self, dataset: FrameDataset, iou_per_frame: Dict[int, float]):
-        self.dataset = dataset
-        self.iou_per_frame = iou_per_frame
+class IoUFilter(BaseFrameFilter):
+    def _init_detector(self) -> IoUDetector:
+        return IoUDetector()
 
-    def filter_frames_by_iou(self) -> FrameDataset:
+    def _get_filtering_conditions(
+        self, dataset: FrameDataset, detector: IoUDetector
+    ) -> dict[int, bool]:
+        return detector.detect(dataset)
+
+    def _filter_dataset(
+        self, dataset: FrameDataset, filtering_conditions: dict[int, bool]
+    ) -> FrameDataset:
         pass

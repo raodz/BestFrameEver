@@ -1,11 +1,7 @@
-from typing import Tuple
+from src.dataset_preparing.frame_dataset import FrameDataset
+from src.prediction.detectors.base_frame_detector import BaseFrameDetector
 
-import numpy as np
 
-
-class ProductPlacementDetector:
-    def __init__(self, frame: np.ndarray):
-        self.frame = frame
-
-    def detect_product_placement(self) -> Tuple[float, float, float, float] | None:
+class ProductPlacementDetector(BaseFrameDetector):
+    def detect(self, dataset: FrameDataset) -> dict[int, bool]:
         pass
