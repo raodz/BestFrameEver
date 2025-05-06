@@ -6,7 +6,7 @@ from utils import compose, identity
 
 
 class FilterPipeline:
-    def __init__(self, filters: list[BaseFrameFilter]):
+    def __init__(self, filters: list[type[BaseFrameFilter]]):
         self.filters = filters
         filter_functions = [f.filter for f in self.filters]
         self.composed_filter_function = reduce(compose, filter_functions, identity)
