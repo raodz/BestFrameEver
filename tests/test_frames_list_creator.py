@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from src.frames_list_creator import FramesListCreator
+from src.dataset_preparing.frames_list_creator import FramesListCreator
 
 
 def test_frames_list_creator_initialization(movie):

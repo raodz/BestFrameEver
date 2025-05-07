@@ -2,7 +2,7 @@ import logging
 
 import numpy as np
 
-from src.movie import Movie
+from src.dataset_preparing.movie import Movie
 
 
 class FramesListCreator:
