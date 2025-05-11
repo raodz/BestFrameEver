@@ -49,3 +49,45 @@ class FeatureExtractor(nn.Module):
         x = self.resnet.layer4(x)
         x = self.adaptive_pool(x)
         return x
+
+
+class Detector(nn.Module):
+    """
+    YOLOv1 detection head using fully connected layers as in the original YOLOv1 paper.
+
+    This head takes the extracted feature map and outputs predictions for bounding boxes
+    and class probabilities for each grid cell.
+    """
+
+    def __init__(self, num_boxes: int = 2, num_classes: int = 20):
+        """
+        Initialize the YOLOv1Detector.
+
+        Args:
+            num_boxes (int): Number of bounding boxes predicted per grid cell.
+            num_classes (int): Number of object classes.
+        """
+        super().__init__()
+        self.num_boxes = num_boxes
+        self.num_classes = num_classes
+
+        # Flatten the feature map, then apply two fully connected layers
+        self.flatten = nn.Flatten()
+        self.fc1 = nn.Linear(2048 * 7 * 7, 4096)
+        self.fc2 = nn.Linear(4096, 7 * 7 * (5 * num_boxes + num_classes))
+        self.leaky_relu = nn.LeakyReLU(0.1)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass through the YOLOv1 detection head.
+
+        Args:
+            x (torch.Tensor): Feature map tensor of shape (batch_size, 2048, 7, 7).
+
+        Returns:
+            torch.Tensor: Prediction tensor of shape (batch_size, 7, 7, num_boxes*5 + num_classes).
+        """
+        x = self.flatten(x)
+        x = self.leaky_relu(self.fc1(x))
+        x = self.fc2(x)
+        return x.view(-1, 7, 7, 5 * self.num_boxes + self.num_classes)
