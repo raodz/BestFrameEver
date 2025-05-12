@@ -1,11 +1,6 @@
-import os
-
 import numpy as np
 import torch
 from torch.utils.data import Dataset
-
-from src.frames_list_creator import FramesListCreator
-from src.movie import Movie
 
 
 class FrameDataset(Dataset):
@@ -44,25 +39,5 @@ class FrameDataset(Dataset):
 
         frame = self.frames[idx]
         frame = torch.from_numpy(frame)  # (H, W, C) —> Tensor (H, W, C)
-        frame = frame.permute(2, 0, 1).float() / 255  # (C, H, W), float, [0, 1]
+        frame = frame.permute(2, 0, 1)  # (C, H, W)
         return frame
-
-
-def main():
-    movie = Movie(
-        "The Sample",
-        os.path.join(os.path.dirname(__file__), "sample_avi_video.avi"),
-        actors=[],
-    )
-
-    frame = movie.get_frame()
-    print(type(frame), frame.shape, np.unique(frame))
-    # flc = FramesListCreator(movie)
-    # frames_list = flc.create_frames_list(every_nth_frame=50)
-    # print(frames_list[0])
-    # flc = FrameDataset(frames_list)
-    # some_frame = flc.__getitem__(11)
-    # print(some_frame)
-
-
-main()

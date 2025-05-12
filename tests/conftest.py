@@ -2,8 +2,8 @@ import os
 
 import pytest
 
-from src.frames_list_creator import FramesListCreator
-from src.movie import Movie
+from src.dataset_preparing.frames_list_creator import FramesListCreator
+from src.dataset_preparing.movie import Movie
 
 
 @pytest.fixture(params=["sample_avi_video.avi", "sample_mp4_video.mp4"])
