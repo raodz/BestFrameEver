@@ -12,4 +12,4 @@ class FilterPipeline:
         self._composed_filter_function = reduce(compose, filter_functions, identity)
 
     def filter(self, dataset: FrameDataset) -> FrameDataset:
-        return self.composed_filter_function(dataset)
+        return self._composed_filter_function(dataset)
