@@ -6,7 +6,7 @@ from src.prediction.detectors.base_frame_detector import BaseFrameDetector
 
 class BaseFrameFilter(ABC):
     def __init__(self):
-        pass
+        self.detector = self._init_detector()
 
     @abstractmethod
     def _init_detector(self) -> BaseFrameDetector:
@@ -25,7 +25,7 @@ class BaseFrameFilter(ABC):
         pass
 
     def filter(self, dataset: FrameDataset) -> FrameDataset:
-        detector = self._init_detector()
-        filtering_conditions = self._get_filtering_conditions(dataset, detector)
-        filtered_dataset = self._filter_dataset(dataset, filtering_conditions)
+        filtered_dataset = self._filter_dataset(
+            dataset, self._get_filtering_conditions(dataset, self.detector)
+        )
         return filtered_dataset
