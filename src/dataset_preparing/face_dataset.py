@@ -4,7 +4,6 @@ import cv2
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
-from torchvision.transforms import ToTensor
 
 from utils import parse_bbox
 
