@@ -53,7 +53,7 @@ class FeatureExtractor(nn.Module):
 
 class Detector(nn.Module):
     """
-    YOLOv1 detection head using fully connected layers as in the original YOLOv1 paper.
+    YOLO detection head using fully connected layers.
 
     This head takes the extracted feature map and outputs predictions for bounding boxes
     and class probabilities for each grid cell.
@@ -79,7 +79,7 @@ class Detector(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Forward pass through the YOLOv1 detection head.
+        Forward pass through the YOLO detection head.
 
         Args:
             x (torch.Tensor): Feature map tensor of shape (batch_size, 2048, 7, 7).
@@ -91,3 +91,37 @@ class Detector(nn.Module):
         x = self.leaky_relu(self.fc1(x))
         x = self.fc2(x)
         return x.view(-1, 7, 7, 5 * self.num_boxes + self.num_classes)
+
+
+class YOLO(nn.Module):
+    """
+    Complete YOLO model combining the feature extractor and detection head.
+
+    This model takes an input image, extracts features using a backbone network,
+    and predicts bounding boxes and class probabilities for each grid cell.
+    """
+
+    def __init__(self, num_boxes: int = 2, num_classes: int = 20):
+        """
+        Initialize the YOLO model.
+
+        Args:
+            num_boxes (int): Number of bounding boxes predicted per grid cell.
+            num_classes (int): Number of object classes.
+        """
+        super().__init__()
+        self.feature_extractor = FeatureExtractor()
+        self.detector = Detector(num_boxes, num_classes)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass through the YOLO model.
+
+        Args:
+            x (torch.Tensor): Input image tensor of shape (batch_size, 3, H, W).
+
+        Returns:
+            torch.Tensor: Prediction tensor of shape (batch_size, 7, 7, num_boxes*5 + num_classes).
+        """
+        features = self.feature_extractor(x)
+        return self.detector(features)
