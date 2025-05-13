@@ -3,6 +3,7 @@ import os
 import pytest
 
 from src.frames_list_creator import FramesListCreator
+from src.model import Detector
 from src.movie import Movie
 
 
@@ -26,3 +27,8 @@ def unloaded_movie(tmp_path):
 @pytest.fixture
 def flc(movie):
     return FramesListCreator(movie)
+
+
+@pytest.fixture
+def detector():
+    return Detector(num_boxes=2, num_classes=20)
