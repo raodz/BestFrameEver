@@ -67,7 +67,7 @@ class FeatureExtractor(BaseModel):
         return x
 
 
-class Detector(BaseModel):
+class DetectionHead(BaseModel):
     """
     YOLO detection head using fully connected layers.
 
@@ -109,7 +109,7 @@ class Detector(BaseModel):
         return x.view(-1, 7, 7, 5 * self.num_boxes + self.num_classes)
 
 
-class YOLO(BaseModel):
+class Detector(BaseModel):
     """
     Complete YOLO model combining the feature extractor and detection head.
 
@@ -127,7 +127,7 @@ class YOLO(BaseModel):
         """
         super().__init__()
         self.feature_extractor = FeatureExtractor()
-        self.detector = Detector(num_boxes, num_classes)
+        self.detector = DetectionHead(num_boxes, num_classes)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """

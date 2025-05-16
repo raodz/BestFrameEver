@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from src.model import YOLO, FeatureExtractor
+from src.model import Detector, FeatureExtractor
 
 
 def test_feature_extractor(sample_input):
@@ -26,7 +26,7 @@ def test_detector_output_shape(detector, sample_input):
 
 
 def test_full_yolo_model(sample_input):
-    model = YOLO()
+    model = Detector()
     output = model(sample_input)
     batch_size = sample_input.size(0)
     assert output.shape == (batch_size, 7, 7, 30)
