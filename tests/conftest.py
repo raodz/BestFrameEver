@@ -1,11 +1,9 @@
 import os
 
 import pytest
-import torch
 
-from src.frames_list_creator import FramesListCreator
-from src.model import Detector
-from src.movie import Movie
+from src.dataset_preparing.frames_list_creator import FramesListCreator
+from src.dataset_preparing.movie import Movie
 
 
 @pytest.fixture(params=["sample_avi_video.avi", "sample_mp4_video.mp4"])
@@ -28,14 +26,3 @@ def unloaded_movie(tmp_path):
 @pytest.fixture
 def flc(movie):
     return FramesListCreator(movie)
-
-
-@pytest.fixture(params=[1, 2, 4, 8, 16])
-def sample_input(request):
-    batch_size = request.param
-    return torch.randn(batch_size, 3, 448, 448)
-
-
-@pytest.fixture
-def detector():
-    return Detector(num_boxes=2, num_classes=20)
