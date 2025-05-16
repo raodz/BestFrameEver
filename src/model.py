@@ -1,9 +1,25 @@
+from abc import ABC, abstractmethod
+
 import torch
 import torch.nn as nn
 from torchvision import models
 
 
-class FeatureExtractor(nn.Module):
+class BaseModel(nn.Module, ABC):
+    @abstractmethod
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Forward pass through the model.
+
+        Args:
+            x (torch.Tensor): Input tensor.
+
+        Returns:
+            torch.Tensor: Output tensor.
+        """
+        pass
+
+
+class FeatureExtractor(BaseModel):
     """Feature extractor using a pre-trained ResNet-50 model.
 
     This class uses a pre-trained ResNet-50 model as a backbone to extract features
@@ -51,7 +67,7 @@ class FeatureExtractor(nn.Module):
         return x
 
 
-class Detector(nn.Module):
+class Detector(BaseModel):
     """
     YOLO detection head using fully connected layers.
 
@@ -93,7 +109,7 @@ class Detector(nn.Module):
         return x.view(-1, 7, 7, 5 * self.num_boxes + self.num_classes)
 
 
-class YOLO(nn.Module):
+class YOLO(BaseModel):
     """
     Complete YOLO model combining the feature extractor and detection head.
 
