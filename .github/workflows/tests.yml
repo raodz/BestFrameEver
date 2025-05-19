@@ -9,28 +9,55 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # This ensures all branches are fetched
+      
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "3.12"
+      
       - name: Install dependencies
         run: pip install -r requirements.txt
+      
       - name: Lint (black, isort)
         run: |
           black --check .
           isort --check-only .
-      - name: Create test directories
+      
+      - name: Ensure test_data directory exists
         run: |
           mkdir -p tests/test_data
-      - name: Download test videos from feature/frameset branch
+      
+      - name: Copy annotations file and test images
         run: |
-          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/sample_avi_video.avi -o tests/sample_avi_video.avi
-          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/sample_mp4_video.mp4 -o tests/sample_mp4_video.mp4
-          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/test_data/test1.jpg -o tests/test_data/test1.jpg
-          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/test_data/test2.jpg -o tests/test_data/test2.jpg
-          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/test_data/annotations.txt -o tests/test_data/annotations.txt
+          # Check if we're on a pull request
+          if [ -n "${{ github.event.pull_request.number }}" ]; then
+            echo "Running in PR context"
+            # Copy test_data files directly from main branch
+            git checkout origin/main -- tests/test_data/annotations.txt
+            git checkout origin/main -- tests/test_data/test1.jpg
+            git checkout origin/main -- tests/test_data/test2.jpg
+            git checkout origin/main -- tests/sample_avi_video.avi
+            git checkout origin/main -- tests/sample_mp4_video.mp4
+          else
+            echo "Running in push context"
+            # We're already on main, so just make sure the files are there
+            if [ ! -f "tests/test_data/annotations.txt" ]; then
+              echo "Error: annotations.txt not found in current branch"
+              exit 1
+            fi
+          fi
+      
+      - name: Verify files exist
+        run: |
+          echo "Checking file existence:"
+          ls -la tests/test_data/
+          echo "Content of annotations file:"
+          cat tests/test_data/annotations.txt || echo "File not found or empty"
+      
       - name: Run tests
         run: |
           export PYTHONPATH=$GITHUB_WORKSPACE
-          pytest
+          pytest -v
