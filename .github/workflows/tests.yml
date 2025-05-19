@@ -24,32 +24,22 @@ jobs:
           black --check .
           isort --check-only .
       
-      - name: Create correct directory structure for test files
+      - name: Create directory structure for test files
         run: |
-          # Create both directory paths to be safe
           mkdir -p tests/test_data
-          mkdir -p test_data
       
       - name: Download test videos and files
         run: |
-          # Download to tests/test_data (where the files are in the repo)
           curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/sample_avi_video.avi -o tests/sample_avi_video.avi
           curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/sample_mp4_video.mp4 -o tests/sample_mp4_video.mp4
           curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/test_data/test1.jpg -o tests/test_data/test1.jpg
           curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/test_data/test2.jpg -o tests/test_data/test2.jpg
           curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/test_data/annotations.txt -o tests/test_data/annotations.txt
-          
-          # ALSO download to test_data (where the code is looking for it)
-          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/test_data/test1.jpg -o test_data/test1.jpg
-          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/test_data/test2.jpg -o test_data/test2.jpg
-          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/test_data/annotations.txt -o test_data/annotations.txt
       
-      - name: Verify files exist in both locations
+      - name: Verify files exist
         run: |
           echo "Files in tests/test_data:"
           ls -la tests/test_data/ || echo "Directory not found"
-          echo "Files in test_data:"
-          ls -la test_data/ || echo "Directory not found"
       
       - name: Run tests
         run: |
