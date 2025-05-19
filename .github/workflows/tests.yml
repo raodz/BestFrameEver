@@ -1,39 +1,57 @@
 name: CI
-
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-
+        uses: actions/checkout@v3
+      
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "3.12"
-
+      
       - name: Install dependencies
         run: pip install -r requirements.txt
-
+      
       - name: Lint (black, isort)
         run: |
           black --check .
           isort --check-only .
-
-      - name: Download test videos from feature/frameset branch
+      
+      - name: Create correct directory structure for test files
         run: |
+          # Create both directory paths to be safe
+          mkdir -p tests/test_data
+          mkdir -p test_data
+      
+      - name: Download test videos and files
+        run: |
+          # Download to tests/test_data (where the files are in the repo)
           curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/sample_avi_video.avi -o tests/sample_avi_video.avi
           curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/sample_mp4_video.mp4 -o tests/sample_mp4_video.mp4
-
+          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/test_data/test1.jpg -o tests/test_data/test1.jpg
+          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/test_data/test2.jpg -o tests/test_data/test2.jpg
+          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/test_data/annotations.txt -o tests/test_data/annotations.txt
+          
+          # ALSO download to test_data (where the code is looking for it)
+          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/test_data/test1.jpg -o test_data/test1.jpg
+          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/test_data/test2.jpg -o test_data/test2.jpg
+          curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/test_data/annotations.txt -o test_data/annotations.txt
+      
+      - name: Verify files exist in both locations
+        run: |
+          echo "Files in tests/test_data:"
+          ls -la tests/test_data/ || echo "Directory not found"
+          echo "Files in test_data:"
+          ls -la test_data/ || echo "Directory not found"
+      
       - name: Run tests
         run: |
           export PYTHONPATH=$GITHUB_WORKSPACE
-
-          pytest
+          pytest -v
