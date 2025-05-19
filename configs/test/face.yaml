@@ -1,0 +1,9 @@
+_target_: src.dataset_preparing.face_dataset.FaceDataset
+
+images_root: ../tests/test_data
+annotation_file: ../tests/test_data/annotations.txt
+transform: null
+
+hydra:
+  run:
+    dir: .
