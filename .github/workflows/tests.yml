@@ -1,32 +1,28 @@
 name: CI
-
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: "3.12"
-
       - name: Install dependencies
         run: pip install -r requirements.txt
-
       - name: Lint (black, isort)
         run: |
           black --check .
           isort --check-only .
-
+      - name: Create test directories
+        run: |
+          mkdir -p tests/test_data
       - name: Download test videos from feature/frameset branch
         run: |
           curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/sample_avi_video.avi -o tests/sample_avi_video.avi
@@ -34,9 +30,7 @@ jobs:
           curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/test_data/test1.jpg -o tests/test_data/test1.jpg
           curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/test_data/test2.jpg -o tests/test_data/test2.jpg
           curl -L https://raw.githubusercontent.com/raodz/BestFrameEver/main/tests/test_data/annotations.txt -o tests/test_data/annotations.txt
-
       - name: Run tests
         run: |
           export PYTHONPATH=$GITHUB_WORKSPACE
-
           pytest
