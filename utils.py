@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 
 
 def compose(f, g):
@@ -15,3 +16,32 @@ def calculate_iou(bbox: tuple[float, float, float, float], frame: np.ndarray) ->
 
 def parse_bbox(x: int, y: int, w: int, h: int) -> list[int]:
     return [x, y, x + w, y + h]
+
+
+def box_iou(box1: torch.Tensor, box2: torch.Tensor) -> torch.Tensor:
+    area1 = (box1[:, 2] - box1[:, 0]) * (box1[:, 3] - box1[:, 1])
+    area2 = (box2[:, 2] - box2[:, 0]) * (box2[:, 3] - box2[:, 1])
+
+    lt = torch.max(box1[:, None, :2], box2[:, :2])
+    rb = torch.min(box1[:, None, 2:], box2[:, 2:])
+
+    wh = (rb - lt).clamp(min=0)
+    inter = wh[:, :, 0] * wh[:, :, 1]
+
+    union = area1[:, None] + area2 - inter
+    return inter / union
+
+
+def nms(
+    boxes: torch.Tensor, scores: torch.Tensor, iou_threshold: float
+) -> torch.Tensor:
+    keep = []
+    idxs = scores.argsort(descending=True)
+
+    while idxs.numel() > 0:
+        best = idxs[0]
+        keep.append(best)
+        ious = box_iou(boxes[best].unsqueeze(0), boxes[idxs[1:]])
+        idxs = idxs[1:][ious[0] <= iou_threshold]
+
+    return torch.tensor(keep)
