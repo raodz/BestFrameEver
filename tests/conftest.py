@@ -1,14 +1,11 @@
 import os
-import tempfile
 
-import cv2
-import numpy as np
 import pytest
 import torch
 
 from src.dataset_preparing.frames_list_creator import FramesListCreator
 from src.dataset_preparing.movie import Movie
-from src.model import DetectionHead, Detector
+from src.prediction.models.model import DetectionHead, Detector
 
 
 @pytest.fixture(params=["sample_avi_video.avi", "sample_mp4_video.mp4"])
