@@ -1,0 +1,51 @@
+from abc import ABC, abstractmethod
+
+import numpy as np
+import torch
+import torch.nn as nn
+
+from src.prediction.models.base_detection_head import BaseDetectionHead
+from src.prediction.models.base_feature_extractor import BaseFeatureExtractor
+
+
+class BaseDetector(nn.Module, ABC):
+    def __init__(self):
+        super().__init__()
+        self.feature_extractor = self._init_feature_extractor()
+        self.detection_head = self._init_detection_head()
+
+        assert (
+            self.feature_extractor.output_shape == self.detection_head.input_shape
+        ), f"Shape mismatch: {self.feature_extractor.output_shape} vs {self.detection_head.input_shape}"
+
+    @abstractmethod
+    def _init_feature_extractor(self) -> BaseFeatureExtractor:
+        pass
+
+    @abstractmethod
+    def _init_detection_head(self) -> BaseDetectionHead:
+        pass
+
+    @abstractmethod
+    def preprocess(self, x: np.ndarray | torch.Tensor) -> torch.Tensor:
+        pass
+
+    @abstractmethod
+    def predict(
+        self,
+        inputs: np.ndarray | list[np.ndarray] | torch.Tensor,
+        conf_threshold: float = 0.5,
+        iou_threshold: float = 0.4,
+    ) -> list[list[dict]]:
+        pass
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        assert x.dim() == 4, f"Expected (N,C,H,W) input, got {x.shape}"
+        assert x.shape[1] == 3, "Input must have 3 color channels"
+
+        features = self.feature_extractor(x)
+        assert (
+            features.shape[1:] == self.feature_extractor.output_shape
+        ), f"Feature shape mismatch: {features.shape} vs {self.feature_extractor.output_shape}"
+
+        return self.detection_head(features)
