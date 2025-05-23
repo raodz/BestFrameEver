@@ -1,5 +1,8 @@
 import os
+import tempfile
 
+import cv2
+import numpy as np
 import pytest
 import torch
 
