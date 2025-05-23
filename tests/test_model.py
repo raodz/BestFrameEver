@@ -3,7 +3,7 @@ from unittest.mock import patch
 import numpy as np
 import torch
 
-from src.prediction.models.model import DetectionHead, Detector, FeatureExtractor
+from src.prediction.models.model import FeatureExtractor
 from utils import box_iou, nms
 
 
@@ -18,37 +18,40 @@ def test_feature_extractor():
     assert output.shape == (2, 2048, 7, 7), f"Unexpected shape: {output.shape}"
 
 
-def test_detector_output_shape():
-    model = Detector()
+def test_detector_output_shape(detector):
+    model = detector
     model.eval()
 
     sample_input = torch.randn(2, 3, 224, 224)
     with torch.no_grad():
         output = model(sample_input)
 
-    expected_shape = (2, 7, 7, model.num_boxes, 5 + model.num_classes)
+    expected_shape = (
+        2,
+        7,
+        7,
+        model.cfg.model.num_boxes,
+        5 + model.cfg.model.num_classes,
+    )
     assert output.shape == expected_shape, f"Unexpected output shape: {output.shape}"
 
 
-def test_detection_head_output_is_finite():
+def test_detection_head_output_is_finite(detection_head):
     input_shape = (2048, 7, 7)
-    head = DetectionHead(input_shape)
     dummy_input = torch.randn(1, *input_shape)
-
-    output = head(dummy_input)
+    output = detection_head(dummy_input)
     assert torch.isfinite(output).all(), "Output contains non-finite values"
 
 
-def test_predict_shape_no_detections():
-    detector = Detector()
-    detector.eval()
-
+def test_predict_shape_no_detections(detector):
     dummy_img = np.zeros((224, 224, 3), dtype=np.uint8)
 
     with patch.object(
         detector,
         "forward",
-        return_value=torch.zeros(1, 7, 7, detector.num_boxes, 5 + detector.num_classes),
+        return_value=torch.zeros(
+            1, 7, 7, detector.cfg.model.num_boxes, 5 + detector.cfg.model.num_classes
+        ),
     ):
         with patch.object(
             detector,
@@ -66,13 +69,12 @@ def test_predict_shape_no_detections():
     assert results[0] == [], "Expected empty detections"
 
 
-def test_class_probabilities_sum_to_one():
-    model = Detector()
-    model.eval()
+def test_class_probabilities_sum_to_one(detector):
+    detector.eval()
 
     dummy_input = torch.randn(1, 3, 224, 224)
     with torch.no_grad():
-        output = model(dummy_input)
+        output = detector(dummy_input)
 
     class_probs = torch.softmax(output[..., 5:], dim=-1)
     summed = class_probs.sum(dim=-1)
@@ -102,9 +104,10 @@ def test_nms():
     assert keep.tolist() == [0, 2], f"Expected [0, 2], got {keep.tolist()}"
 
 
-def test_postprocess_output_no_detections():
-    detector = Detector()
-    output = torch.zeros(7, 7, detector.num_boxes, 5 + detector.num_classes)
+def test_postprocess_output_no_detections(detector):
+    output = torch.zeros(
+        7, 7, detector.cfg.model.num_boxes, 5 + detector.cfg.model.num_classes
+    )
     boxes, scores, classes = detector._postprocess_output(output, (224, 224))
 
     assert boxes.ndim == 2 and boxes.shape[1] == 4
@@ -112,8 +115,7 @@ def test_postprocess_output_no_detections():
     assert classes.ndim == 1
 
 
-def test_full_model_pipeline():
-    detector = Detector()
+def test_full_model_pipeline(detector):
     dummy_image = np.random.randint(0, 255, size=(224, 224, 3), dtype=np.uint8)
 
     results = detector.predict(dummy_image)

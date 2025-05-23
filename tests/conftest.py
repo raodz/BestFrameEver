@@ -2,6 +2,7 @@ import os
 
 import pytest
 import torch
+from omegaconf import OmegaConf
 
 from src.dataset_preparing.frames_list_creator import FramesListCreator
 from src.dataset_preparing.movie import Movie
@@ -37,10 +38,32 @@ def sample_input(request):
 
 
 @pytest.fixture
-def detection_head():
-    return DetectionHead(num_boxes=2, num_classes=20)
+def cfg():
+    return OmegaConf.create(
+        {
+            "model": {
+                "num_classes": 20,
+                "num_boxes": 2,
+                "input_size": [224, 224],
+                "device": None,
+                "detection_head": {
+                    "hidden_size": 4096,
+                },
+            },
+            "preprocessing": {
+                "mean": [0.485, 0.456, 0.406],
+                "std": [0.229, 0.224, 0.225],
+            },
+            "postprocessing": {"conf_threshold": 0.5, "iou_threshold": 0.4},
+        }
+    )
 
 
 @pytest.fixture
-def detector():
-    return Detector()
+def detection_head(cfg):
+    return DetectionHead(input_shape=(2048, 7, 7), cfg=cfg)
+
+
+@pytest.fixture
+def detector(cfg):
+    return Detector(cfg=cfg)

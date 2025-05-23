@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import torch
+from omegaconf import DictConfig
 from torch import nn
 from torchvision import models
 
@@ -42,21 +43,17 @@ class FeatureExtractor(BaseFeatureExtractor):
 
 
 class DetectionHead(BaseDetectionHead):
-    def __init__(
-        self,
-        input_shape: tuple[int, int, int],
-        num_classes: int = 20,
-        num_boxes: int = 2,
-    ):
+    def __init__(self, input_shape: tuple[int, int, int], cfg: DictConfig):
         super().__init__(input_shape)
-        self.num_classes = num_classes
-        self.num_boxes = num_boxes
+        self.cfg = cfg.model.detection_head
+        self.num_boxes = cfg.model.num_boxes
+        self.num_classes = cfg.model.num_classes
 
         in_features = input_shape[0] * input_shape[1] * input_shape[2]
         self.flatten = nn.Flatten()
         self.fc1 = nn.Linear(in_features, 4096)
         self.leaky_relu = nn.LeakyReLU(0.1)
-        self.fc2 = nn.Linear(4096, 7 * 7 * num_boxes * (5 + num_classes))
+        self.fc2 = nn.Linear(4096, 7 * 7 * self.num_boxes * (5 + self.num_classes))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.flatten(x)
@@ -66,21 +63,27 @@ class DetectionHead(BaseDetectionHead):
 
 
 class Detector(BaseDetector):
-    def __init__(self, num_classes: int = 20, num_boxes: int = 2, device=None):
-        self.num_classes = num_classes
-        self.num_boxes = num_boxes
+    def __init__(self, cfg: DictConfig):
+        self.cfg = cfg
         super().__init__()
 
-        if device is None:
-            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        else:
-            self.device = torch.device(device)
+        self.input_size = cfg.model.input_size
+        self.num_boxes = cfg.model.num_boxes
+        self.num_classes = cfg.model.num_classes
+
+        self.device = torch.device(
+            cfg.model.device
+            if cfg.model.device
+            else "cuda"
+            if torch.cuda.is_available()
+            else "cpu"
+        )
 
         self.register_buffer(
-            "mean", torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
+            "mean", torch.tensor(cfg.preprocessing.mean).view(1, 3, 1, 1)
         )
         self.register_buffer(
-            "std", torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
+            "std", torch.tensor(cfg.preprocessing.std).view(1, 3, 1, 1)
         )
         self.to(self.device)
 
@@ -90,8 +93,7 @@ class Detector(BaseDetector):
     def _init_detection_head(self) -> BaseDetectionHead:
         return DetectionHead(
             input_shape=self.feature_extractor.output_shape,
-            num_classes=self.num_classes,
-            num_boxes=self.num_boxes,
+            cfg=self.cfg,
         )
 
     def preprocess(self, x: np.ndarray | torch.Tensor) -> torch.Tensor:
@@ -101,7 +103,7 @@ class Detector(BaseDetector):
             x = torch.from_numpy(x).permute(2, 0, 1).float() / 255.0
             x = x.unsqueeze(0)
 
-        x = torch.nn.functional.interpolate(x, size=(224, 224), mode="bilinear")
+        x = torch.nn.functional.interpolate(x, tuple(self.input_size), mode="bilinear")
         x = (x - self.mean.to(x.device)) / self.std.to(x.device)
         return x.to(self.device)
 
@@ -139,6 +141,9 @@ class Detector(BaseDetector):
         conf_threshold: float = 0.5,
         iou_threshold: float = 0.4,
     ) -> list[list[dict]]:
+        conf_threshold = self.cfg.postprocessing.conf_threshold
+        iou_threshold = self.cfg.postprocessing.iou_threshold
+
         if not isinstance(inputs, list):
             inputs = [inputs]
 
