@@ -19,11 +19,19 @@ class BaseDetector(nn.Module, ABC):
         ), f"Shape mismatch: {self.feature_extractor.output_shape} vs {self.detection_head.input_shape}"
 
     @abstractmethod
-    def _init_feature_extractor(self) -> BaseFeatureExtractor:
+    def _init_feature_extractor(
+        self, grid_size, output_feature_channels
+    ) -> BaseFeatureExtractor:
         pass
 
     @abstractmethod
-    def _init_detection_head(self) -> BaseDetectionHead:
+    def _init_detection_head(
+        self,
+        input_feature_channels: int,
+        input_grid_size: int,
+        hidden_size: int,
+        leaky_relu_slope: float,
+    ) -> BaseDetectionHead:
         pass
 
     @abstractmethod
@@ -34,8 +42,6 @@ class BaseDetector(nn.Module, ABC):
     def predict(
         self,
         inputs: np.ndarray | list[np.ndarray] | torch.Tensor,
-        conf_threshold: float = 0.5,
-        iou_threshold: float = 0.4,
     ) -> list[list[dict]]:
         pass
 
