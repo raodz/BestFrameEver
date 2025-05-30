@@ -1,0 +1,4 @@
+defaults:
+  - model: resnet50
+  - preprocessing: imagenet
+  - postprocessing: default
