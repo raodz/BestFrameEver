@@ -45,3 +45,12 @@ def nms(
         idxs = idxs[1:][ious[0] <= iou_threshold]
 
     return torch.tensor(keep)
+
+
+def select_device(device_config: str = None):
+    if device_config not in ["cpu", "cuda"]:
+        raise ValueError("Specify correct device in the config")
+    try:
+        return torch.device(device_config)
+    except Exception:
+        raise ValueError(f"Invalid device: {device_config}")
