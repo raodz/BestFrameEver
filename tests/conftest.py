@@ -50,3 +50,16 @@ def prompt_template():
         "Cannot find actors for this movie\nOtherwise, give your answer in the following format:\n"
         "First Name Last Name, First Name Last Name, First Name Last Name"
     )
+
+
+HAS_KEY = os.path.exists(KEY_PATH)
+
+skip_if_key = pytest.mark.skipif(
+    HAS_KEY,
+    reason="Vertex API key found — skipping mocked tests in favour of live API tests",
+)
+
+skip_if_no_key = pytest.mark.skipif(
+    not HAS_KEY,
+    reason="No local Vertex API key file found — skipping live API tests",
+)
