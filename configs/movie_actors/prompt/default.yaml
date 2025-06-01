@@ -1,5 +1,8 @@
 template: |
-  Give the names of the actors or actresses who played the three main roles in the movie {movie_title}.
-  Be as concise as possible. Make sure you name the correct actors in the correct order.
-  List them in order of importance of their roles — from the most to the least prominent.
-  Give your answer in the form: First Name Last Name, First Name Last Name, First Name Last Name
+  Give the names of the actors or actresses who played the {n_actors} main roles in the movie "{movie_title}".
+  Be as concise as possible. Make sure you name the correct actors in the correct order — from the most to the least prominent.
+  Only answer if you are confident in the correctness of the cast and the order of importance.
+  If the movie does not exist or you are not sure about the correct cast, respond exactly with:
+  Cannot find actors for this movie
+  Otherwise, give your answer in the following format:
+  First Name Last Name, First Name Last Name, First Name Last Name
