@@ -10,7 +10,7 @@ movie_actors_project_rel_path = os.path.join("..", MOVIE_ACTORS_REL_PATH)
 
 
 @hydra.main(
-    version_base=None, config_path=movie_actors_project_rel_path, config_name="conf1"
+    version_base=None, config_path=movie_actors_project_rel_path, config_name="default"
 )
 def main(cfg: DictConfig):
     get_actors_names(
