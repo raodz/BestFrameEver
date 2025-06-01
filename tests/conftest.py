@@ -4,6 +4,7 @@ import pytest
 
 from src.dataset_preparing.frames_list_creator import FramesListCreator
 from src.dataset_preparing.movie import Movie
+from src.utils.paths import KEY_PATH
 
 
 @pytest.fixture(params=["sample_avi_video.avi", "sample_mp4_video.mp4"])
@@ -29,13 +30,13 @@ def flc(movie):
 
 
 @pytest.fixture
-def dummy_vertex_config():
+def vertex_config():
     return {
         "env_var_name": "GOOGLE_APPLICATION_CREDENTIALS",
-        "credentials_path": "/fake/path/to/creds.json",
-        "project_id": "fake-project",
+        "credentials_path": KEY_PATH,
+        "project_id": "bestframeever",
         "region": "us-central1",
-        "model_name": "some-model",
+        "model_name": "gemini-2.0-flash-001",
     }
 
 
