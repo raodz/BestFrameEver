@@ -5,7 +5,7 @@ import sys
 from src.img_scrapping.image_scrapper import ImageScraper
 
 DEFAULT_NUM_IMAGES = 10  # to config
-DATA_DIR = "data"
+DATA_DIR = "../data//actors_images"
 
 # Configure logging
 logging.basicConfig(
