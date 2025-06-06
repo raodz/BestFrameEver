@@ -5,7 +5,7 @@ from omegaconf import DictConfig
 from torch import nn
 from torchvision import models
 
-from src.constants import BOX_COORDS, CONFIDENCE
+from src.constants import N_BOX_COORDS
 from src.prediction.models.base_detection_head import BaseDetectionHead
 from src.prediction.models.base_detector import BaseDetector
 from src.prediction.models.base_feature_extractor import BaseFeatureExtractor
@@ -175,7 +175,8 @@ class Detector(BaseDetector):
         img_w, img_h = img_size
         device = output.device
 
-        output_dim = BOX_COORDS + CONFIDENCE + self.num_classes
+        # N_BOX_COORDINATES + confidence_score + n_classes
+        output_dim = N_BOX_COORDS + 1 + self.num_classes
         output = output.view(
             -1, self.grid_size, self.grid_size, self.num_boxes, output_dim
         )
