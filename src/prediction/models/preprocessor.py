@@ -24,8 +24,8 @@ class Preprocessor:
 
         resized = cv2.resize(image, self.input_size, interpolation=cv2.INTER_LINEAR)
 
-        normalized = resized.astype(np.float32) / self.scale_factor
-        normalized = (normalized - self.mean) / self.std
+        scaled = resized.astype(np.float32) / self.scale_factor
+        normalized = (scaled - self.mean) / self.std
 
         # to tensor (C, H, W, batch=1)
         tensor = torch.from_numpy(normalized).permute(2, 0, 1).unsqueeze(0)
