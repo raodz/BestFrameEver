@@ -73,7 +73,7 @@ class YoloV1(BaseDetectionHead):
             self.output_scaling
             * self.output_scaling
             * self.num_boxes
-            * (5 + self.num_classes),
+            * (N_BOX_COORDS + 1 + self.num_classes),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -85,7 +85,7 @@ class YoloV1(BaseDetectionHead):
             self.output_scaling,
             self.output_scaling,
             self.num_boxes,
-            5 + self.num_classes,
+            N_BOX_COORDS + 1 + self.num_classes,
         )
 
 
