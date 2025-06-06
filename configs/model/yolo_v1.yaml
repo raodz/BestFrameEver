@@ -3,4 +3,3 @@ detection_head:
   input_grid_size: 7
   hidden_size: 4096
   leaky_relu_negative_slope: 0.1
-  output_scaling: 7
