@@ -1,64 +1,79 @@
 import json
-import logging
 from urllib.parse import urlencode
 
 from bs4 import BeautifulSoup
+from omegaconf import OmegaConf
 
 from src.img_scrapping.image_validation import is_valid_image_url
+from src.logging_management import setup_logger
 
-logger = logging.getLogger(__name__)
+logger = setup_logger()
 
 
 class ImageSearcher:
-    def __init__(self, user_agent_manager):
+    def __init__(self, cfg, user_agent_manager):
+        self.cfg = cfg
         self.user_agent_manager = user_agent_manager
 
-    def search_images(self, query, num_images=10):
+    def build_search_url(self, query, num_images):
+        params = OmegaConf.to_container(self.cfg.params, resolve=True)
+        params["q"] = query
+        params["count"] = str(
+            min(num_images * self.cfg.count_multiplier, self.cfg.max_count)
+        )
+        return f"{self.cfg.url_base}?{urlencode(params)}"
+
+    def fetch_image_html(self, url):
+        self.user_agent_manager.update_headers()
+        session = self.user_agent_manager.get_session()
+        response = session.get(url, timeout=15)
+        response.raise_for_status()
+        return BeautifulSoup(response.text, "html.parser")
+
+    def extract_image_urls_from_soup(self, soup, num_images, extract_params):
+        urls = []
+
+        def add_url(candidate):
+            if is_valid_image_url(candidate) and candidate not in urls:
+                urls.append(candidate)
+            return len(urls) >= num_images
+
+        for link in soup.find_all(
+            extract_params["link_tag"], class_=extract_params["link_class"]
+        ):
+            json_attr = link.get(extract_params["json_attr"])
+            if json_attr:
+                try:
+                    data = json.loads(json_attr)
+                    if extract_params["json_url_key"] in data and add_url(
+                        data[extract_params["json_url_key"]]
+                    ):
+                        break
+                except json.JSONDecodeError:
+                    continue
+
+        # Fallback - zwykłe <img>
+        if len(urls) < num_images:
+            for img in soup.find_all(extract_params["fallback_tag"]):
+                for attr in extract_params["fallback_src_attrs"]:
+                    src = img.get(attr)
+                    if src and add_url(src):
+                        break
+                if len(urls) >= num_images:
+                    break
+
+        return urls[:num_images]
+
+    def search_images(self, query, num_images):
         logger.info(f"Searching Images: {query}")
-
-        params = {
-            "q": query,
-            "first": "1",
-            "count": str(min(num_images * 2, 35)),
-            "qft": "+filterui:aspect-square+filterui:imagesize-medium",
-        }
-
-        url = f"https://www.bing.com/images/search?{urlencode(params)}"
-
         try:
-            self.user_agent_manager.update_headers()
-            session = self.user_agent_manager.get_session()
-            response = session.get(url, timeout=15)
-            response.raise_for_status()
-
-            soup = BeautifulSoup(response.text, "html.parser")
-            image_urls = []
-
-            for link in soup.find_all("a", class_="iusc"):
-                m_attr = link.get("m")
-                if m_attr:
-                    try:
-                        data = json.loads(m_attr)
-                        if "murl" in data:
-                            url = data["murl"]
-                            if is_valid_image_url(url) and url not in image_urls:
-                                image_urls.append(url)
-                                if len(image_urls) >= num_images:
-                                    break
-                    except:
-                        continue
-
-            if len(image_urls) < num_images:
-                for img in soup.find_all("img"):
-                    src = img.get("src") or img.get("data-src")
-                    if src and is_valid_image_url(src) and src not in image_urls:
-                        image_urls.append(src)
-                        if len(image_urls) >= num_images:
-                            break
-
-            logger.info(f"Found {len(image_urls)} image URLs")
-            return image_urls[:num_images]
-
+            url = self.build_search_url(query, num_images)
+            soup = self.fetch_image_html(url)
+            urls = self.extract_image_urls_from_soup(
+                soup, num_images, self.cfg.extract_params
+            )
+            logger.info(f"Found {len(urls)} image URLs")
+            return urls
         except Exception as e:
             logger.error(f"Images error: {e}")
             return []
