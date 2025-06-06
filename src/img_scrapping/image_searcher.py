@@ -14,7 +14,7 @@ class ImageSearcher:
         self.user_agent_manager = user_agent_manager
 
     def search_images(self, query, num_images=10):
-        logger.info(f"Searching Bing Images: {query}")
+        logger.info(f"Searching Images: {query}")
 
         params = {
             "q": query,
@@ -60,19 +60,19 @@ class ImageSearcher:
             return image_urls[:num_images]
 
         except Exception as e:
-            logger.error(f"Bing Images error: {e}")
+            logger.error(f"Images error: {e}")
             return []
 
     def manage_searching_images(self, query, num_images=10):
         all_urls = []
 
-        logger.info("--- Trying Bing ---")
+        logger.info("--- Trying Searching ---")
         urls = self.search_images(query, num_images)
 
         for url in urls:
             if url not in all_urls:
                 all_urls.append(url)
 
-        logger.info(f"Bing: added {len(urls)} new URLs")
+        logger.info(f"Added {len(urls)} new URLs")
         logger.info(f"Total found {len(all_urls)} unique URLs")
         return all_urls[:num_images]
