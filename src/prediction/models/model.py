@@ -97,6 +97,8 @@ class Detector(BaseDetector):
         num_boxes: int,
         num_classes: int,
         grid_size: int,
+        conf_threshold: float,
+        iou_threshold: float,
         # Feature Extractor params
         feature_extractor_output_channels: int,
         # Detection Head params
@@ -114,6 +116,8 @@ class Detector(BaseDetector):
         self.num_boxes = num_boxes
         self.num_classes = num_classes
         self.grid_size = grid_size
+        self.conf_threshold = conf_threshold
+        self.iou_threshold = iou_threshold
         self.device = select_device(device)
         self.preprocessor = preprocessor
         self.postprocessor = postprocessor
@@ -161,9 +165,6 @@ class Detector(BaseDetector):
         self,
         inputs: np.ndarray | list[np.ndarray] | torch.Tensor,
     ) -> list[list[dict]]:
-        conf_threshold = self.conf_threshold
-        iou_threshold = self.iou_threshold
-
         inputs_list = [inputs] if not isinstance(inputs, list) else inputs
         processed = list(map(self.preprocess, inputs_list))
         batch = torch.cat(processed, dim=0)
@@ -179,15 +180,15 @@ class Detector(BaseDetector):
             else:
                 img_size = (img.shape[-1], img.shape[-2])
 
-            boxes, scores, classes = self._postprocess_output(output, img_size)
+            boxes, scores, classes = self.postprocessor(output, img_size)
 
-            mask = scores >= conf_threshold
+            mask = scores >= self.conf_threshold
             boxes = boxes[mask]
             scores = scores[mask]
             classes = classes[mask]
 
             if boxes.numel() > 0:
-                keep = nms(boxes, scores, iou_threshold)
+                keep = nms(boxes, scores, self.iou_threshold)
                 boxes = boxes[keep]
                 scores = scores[keep]
                 classes = classes[keep]

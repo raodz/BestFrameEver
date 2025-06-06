@@ -2,3 +2,6 @@ detector:
   num_classes: 20
   num_boxes: 2
   input_size: [224, 224]
+  conf_threshold: 0.5
+  iou_threshold: 0.4
+
