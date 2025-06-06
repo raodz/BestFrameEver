@@ -13,7 +13,7 @@ from src.prediction.models.preprocessor import Preprocessor
 from utils import nms, select_device
 
 
-class ResNet50(BaseFeatureExtractor):
+class ResNet50FE(BaseFeatureExtractor):
     def __init__(self, grid_size, output_feature_channels):
         super().__init__()
         self.grid_size = grid_size
@@ -102,11 +102,7 @@ class Detector(BaseDetector):
         detection_head_input_feature_channels: int,
         detection_head_hidden_size: int,
         detection_head_leaky_relu_slope: float,
-        # Preprocess params
-        mean: list[float],
-        std: list[float],
-        preprocessing_interpolation: str,
-        preprocessing_scale_factor: float,
+        preprocessor: Preprocessor,
         # Postprocess params
         postprocessing_conf_threshold: float,
         postprocessing_iou_threshold: float,
@@ -121,14 +117,7 @@ class Detector(BaseDetector):
         self.device = select_device(device)
         self.conf_threshold = postprocessing_conf_threshold
         self.iou_threshold = postprocessing_iou_threshold
-
-        # Preprocessor
-        self.preprocessor = Preprocessor(
-            input_size=self.input_size,
-            mean=mean,
-            std=std,
-            scale_factor=preprocessing_scale_factor,
-        )
+        self.preprocessor = preprocessor
 
         self.feature_extractor = self._init_feature_extractor(
             grid_size=self.grid_size,
@@ -145,7 +134,7 @@ class Detector(BaseDetector):
     def _init_feature_extractor(
         self, grid_size: int, output_feature_channels: int
     ) -> BaseFeatureExtractor:
-        return ResNet50(
+        return ResNet50FE(
             grid_size=grid_size, output_feature_channels=output_feature_channels
         )
 
