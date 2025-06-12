@@ -1,3 +1,0 @@
-feature_extractor:
-  output_feature_channels: 2048
-  output_grid_size: 7

@@ -1,5 +1,0 @@
-detection_head:
-  input_feature_channels: 2048
-  input_grid_size: 7
-  hidden_size: 4096
-  leaky_relu_negative_slope: 0.1
