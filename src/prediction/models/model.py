@@ -1,7 +1,5 @@
-import cv2
 import numpy as np
 import torch
-from omegaconf import DictConfig
 from torch import nn
 from torchvision import models
 
@@ -15,20 +13,20 @@ from utils import nms, select_device
 
 
 class ResNet50FE(BaseFeatureExtractor):
-    def __init__(self, grid_size, output_feature_channels):
+    def __init__(self, grid_size: int, output_feature_channels: int):
         super().__init__()
         self.grid_size = grid_size
-        self._output_shape = (output_feature_channels, self.grid_size, self.grid_size)
+        self._output_shape = (output_feature_channels, grid_size, grid_size)
 
         self.resnet = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1)
 
         del self.resnet.avgpool
         del self.resnet.fc
 
-        self.adaptive_pool = nn.AdaptiveAvgPool2d((self.grid_size, self.grid_size))
+        self.adaptive_pool = nn.AdaptiveAvgPool2d((grid_size, grid_size))
 
     @property
-    def output_shape(self):
+    def output_shape(self) -> tuple[int, int, int]:
         return self._output_shape
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -50,31 +48,27 @@ class YoloV1(BaseDetectionHead):
     def __init__(
         self,
         input_feature_channels: int,
-        input_grid_size: int,
-        num_boxes,
-        num_classes,
-        hidden_size,
-        leaky_relu_negative_slope,
-        output_scaling,
+        grid_size: int,
+        num_boxes: int,
+        num_classes: int,
+        hidden_size: int,
+        leaky_relu_negative_slope: float,
     ):
-        super().__init__((input_feature_channels, input_grid_size, input_grid_size))
+        super().__init__((input_feature_channels, grid_size, grid_size))
         self.num_boxes = num_boxes
         self.num_classes = num_classes
-        self.hidden_size = hidden_size
-        self.leaky_relu_negative_slope = leaky_relu_negative_slope
-        self.output_scaling = output_scaling
+        self.grid_size = grid_size
 
-        in_features = input_feature_channels * input_grid_size * input_grid_size
+        in_features = input_feature_channels * grid_size * grid_size
+
         self.flatten = nn.Flatten()
-        self.fc1 = nn.Linear(in_features, self.hidden_size)
-        self.leaky_relu = nn.LeakyReLU(self.leaky_relu_negative_slope)
-        self.fc2 = nn.Linear(
-            self.hidden_size,
-            self.output_scaling
-            * self.output_scaling
-            * self.num_boxes
-            * (N_BOX_COORDS + 1 + self.num_classes),
+        self.fc1 = nn.Linear(in_features, hidden_size)
+        self.leaky_relu = nn.LeakyReLU(leaky_relu_negative_slope)
+
+        out_features = (
+            grid_size * grid_size * num_boxes * (N_BOX_COORDS + 1 + num_classes)
         )
+        self.fc2 = nn.Linear(hidden_size, out_features)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.flatten(x)
@@ -82,8 +76,8 @@ class YoloV1(BaseDetectionHead):
         x = self.fc2(x)
         return x.view(
             -1,
-            self.output_scaling,
-            self.output_scaling,
+            self.grid_size,
+            self.grid_size,
             self.num_boxes,
             N_BOX_COORDS + 1 + self.num_classes,
         )
@@ -112,13 +106,13 @@ class Detector(BaseDetector):
         device: str,
     ):
         super().__init__()
-        self.input_size = tuple(input_size)
         self.num_boxes = num_boxes
         self.num_classes = num_classes
         self.grid_size = grid_size
         self.conf_threshold = conf_threshold
         self.iou_threshold = iou_threshold
         self.device = select_device(device)
+
         self.preprocessor = preprocessor
         self.postprocessor = postprocessor
 
@@ -128,7 +122,7 @@ class Detector(BaseDetector):
         )
         self.detection_head = self._init_detection_head(
             input_feature_channels=detection_head_input_feature_channels,
-            input_grid_size=self.grid_size,
+            grid_size=self.grid_size,
             hidden_size=detection_head_hidden_size,
             leaky_relu_slope=detection_head_leaky_relu_slope,
         )
@@ -144,55 +138,67 @@ class Detector(BaseDetector):
     def _init_detection_head(
         self,
         input_feature_channels: int,
-        input_grid_size: int,
+        grid_size: int,
         hidden_size: int,
         leaky_relu_slope: float,
     ) -> BaseDetectionHead:
         return YoloV1(
             input_feature_channels=input_feature_channels,
-            input_grid_size=input_grid_size,
+            grid_size=grid_size,
             num_boxes=self.num_boxes,
             num_classes=self.num_classes,
             hidden_size=hidden_size,
             leaky_relu_negative_slope=leaky_relu_slope,
-            output_scaling=self.grid_size,
         )
 
     def preprocess(self, x):
         return self.preprocessor(x).to(self.device)
 
+    @torch.inference_mode()
     def predict(
         self,
-        inputs: np.ndarray | list[np.ndarray] | torch.Tensor,
+        inputs: list[np.ndarray] | list[torch.Tensor],
     ) -> list[list[dict]]:
-        inputs_list = [inputs] if not isinstance(inputs, list) else inputs
-        processed = list(map(self.preprocess, inputs_list))
+        if not isinstance(inputs, list):
+            raise TypeError("Input must be a list of numpy arrays or tensors")
+
+        # Preprocessing
+        processed = list(map(self.preprocess, inputs))
         batch = torch.cat(processed, dim=0)
 
-        with torch.no_grad():
-            outputs = self.forward(batch)
+        # Model inference
+        outputs = self(batch)
 
         results = []
-        for output, img in zip(outputs, inputs_list):
-            if isinstance(img, np.ndarray):
+        for i, (output, img) in enumerate(zip(outputs, inputs)):
+            # Pobieranie rozmiaru obrazu
+            if isinstance(img, np.ndarray):  # (opencv format HWC)
                 h, w = img.shape[:2]
                 img_size = (w, h)
-            else:
+            else:  # (torch format CHW)
                 img_size = (img.shape[-1], img.shape[-2])
 
+            # Postprocessing
             boxes, scores, classes = self.postprocessor(output, img_size)
+            print(f"   Detekcje przed filtracją: {len(boxes)}")
 
-            mask = scores >= self.conf_threshold
-            boxes = boxes[mask]
-            scores = scores[mask]
-            classes = classes[mask]
+            # Confidence filter
+            keep_idx = torch.where(scores > self.conf_threshold)[0]
+            boxes = boxes[keep_idx]
+            scores = scores[keep_idx]
+            classes = classes[keep_idx]
+            print(
+                f"   Detekcje po threshold (conf>{self.conf_threshold}): {len(boxes)}"
+            )
 
+            # Non-Max Suppression
             if boxes.numel() > 0:
-                keep = nms(boxes, scores, self.iou_threshold)
-                boxes = boxes[keep]
-                scores = scores[keep]
-                classes = classes[keep]
+                nms_keep = nms(boxes, scores, self.iou_threshold)
+                boxes = boxes[nms_keep]
+                scores = scores[nms_keep]
+                classes = classes[nms_keep]
 
+            # Results format
             results.append(
                 [
                     {
@@ -204,4 +210,4 @@ class Detector(BaseDetector):
                 ]
             )
 
-            return results if isinstance(inputs, list) else results[0]
+        return results
