@@ -11,12 +11,6 @@ from src.prediction.models.base_feature_extractor import BaseFeatureExtractor
 class BaseDetector(nn.Module, ABC):
     def __init__(self):
         super().__init__()
-        self.feature_extractor = self._init_feature_extractor()
-        self.detection_head = self._init_detection_head()
-
-        assert (
-            self.feature_extractor.output_shape == self.detection_head.input_shape
-        ), f"Shape mismatch: {self.feature_extractor.output_shape} vs {self.detection_head.input_shape}"
 
     @abstractmethod
     def _init_feature_extractor(
