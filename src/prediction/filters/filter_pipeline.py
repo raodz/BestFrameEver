@@ -2,7 +2,7 @@ from functools import reduce
 
 from src.dataset_preparing.frame_dataset import FrameDataset
 from src.prediction.filters.base_frame_filter import BaseFrameFilter
-from utils import compose, identity
+from src.utils.utils import compose, identity
 
 
 class FilterPipeline:

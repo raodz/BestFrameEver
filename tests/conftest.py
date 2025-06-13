@@ -1,12 +1,12 @@
 import os
-import tempfile
 
-import cv2
-import numpy as np
 import pytest
 
 from src.dataset_preparing.frames_list_creator import FramesListCreator
 from src.dataset_preparing.movie import Movie
+from src.utils.paths import KEY_PATH
+
+has_key = os.path.exists(KEY_PATH)
 
 
 @pytest.fixture(params=["sample_avi_video.avi", "sample_mp4_video.mp4"])
@@ -29,3 +29,14 @@ def unloaded_movie(tmp_path):
 @pytest.fixture
 def flc(movie):
     return FramesListCreator(movie)
+
+
+skip_if_key = pytest.mark.skipif(
+    has_key,
+    reason="Vertex API key found — skipping mocked tests in favour of live API tests",
+)
+
+skip_if_no_key = pytest.mark.skipif(
+    not has_key,
+    reason="No local Vertex API key file found — skipping live API tests",
+)

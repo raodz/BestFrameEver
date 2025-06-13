@@ -3,7 +3,7 @@ import torch
 from testing_paths import ANNOTATION_FILE, IMAGE_DIR
 
 from src.dataset_preparing.face_dataset import FaceDataset
-from utils import parse_bbox
+from src.utils.utils import parse_bbox
 
 
 @pytest.fixture

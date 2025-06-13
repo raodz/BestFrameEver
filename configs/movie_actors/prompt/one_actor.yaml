@@ -1,0 +1,7 @@
+template: |
+  Give the name of the actor or actress who played the most prominent role in the movie "{movie_title}".
+  Be as concise as possible. Only answer if you are confident that the actor is correct and actually appeared in the movie.
+  If the movie does not exist or you are not sure about the correct actor, respond exactly with:
+  Cannot find actors for this movie
+  Otherwise, give your answer in the following format:
+  First Name Last Name
