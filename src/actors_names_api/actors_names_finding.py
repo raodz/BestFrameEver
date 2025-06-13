@@ -4,8 +4,8 @@ import vertexai
 from google.api_core.exceptions import DeadlineExceeded, GoogleAPIError, InvalidArgument
 from vertexai.preview.generative_models import GenerativeModel
 
-from logging_management import setup_logger
-from src.exceptions.actor_exceptions import ActorsNotFoundError
+from src.exceptions.actor_exceptions import ActorsNotFoundException
+from src.utils.setup_logger import setup_logger
 
 logger = setup_logger()
 
@@ -33,17 +33,14 @@ def get_actors_names(
         error_msg = vertex_exceptions.get(type(e), "Vertex AI request failed.")
         logger.error(f"{error_msg} Details: {str(e)}")
         raise
-    except Exception as e:
-        logger.exception(f"Unexpected error during actor query: {str(e)}")
-        raise
 
     if response and response.text:
         result = response.text.strip()
         if result == "Cannot find actors for this movie":
             logger.error(f"Actors not found for movie: {title}")
-            raise ActorsNotFoundError(f"No reliable cast found for movie: {title}")
+            raise ActorsNotFoundException(f"No reliable cast found for movie: {title}")
         logger.info(f"Actor names: {result}")
         return [name.strip() for name in result.split(",")]
     else:
         logger.error("Empty or missing response from model")
-        raise ActorsNotFoundError("Empty response received from the model.")
+        raise ActorsNotFoundException("Empty response received from the model.")
