@@ -1,0 +1,4 @@
+input_feature_channels: 2048
+grid_size: ${detector.grid_size}
+hidden_size: 4096
+leaky_relu_negative_slope: 0.1

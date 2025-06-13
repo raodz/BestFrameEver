@@ -1,0 +1,16 @@
+defaults:
+  - _self_
+  - feature_extractor: resnet50
+  - detection_head: yolo_v1
+  - preprocessor: imagenet
+  - postprocessor: default
+
+detector:
+  input_size: [224, 224]
+  num_boxes: 2
+  num_classes: 20
+  grid_size: 7
+  conf_threshold: 0.0475
+  iou_threshold: 0.4
+  feature_extractor_output_channels: 2048
+  device: cpu
