@@ -22,7 +22,7 @@ class ImageSearcher:
         )
         return f"{self.cfg.url_base}?{urlencode(params)}"
 
-    def fetch_image_html(self, url):
+    def fetch_html(self, url):
         self.user_agent_manager.rotate_user_agent()
         session = self.user_agent_manager.get_session()
         response = session.get(url, timeout=self.cfg.timeout)
@@ -31,17 +31,11 @@ class ImageSearcher:
 
     def search_images(self, query, num_images):
         logger.info(f"Searching Images: {query}")
-        try:
-            url = self.build_search_url(query, num_images)
-            soup = self.fetch_image_html(url)
-            urls = extract_image_urls_from_soup(
-                soup, num_images, self.cfg.extract_params
-            )
-            logger.info(f"Found {len(urls)} image URLs")
-            return urls
-        except Exception as e:
-            logger.error(f"Images error: {e}")
-            return []
+        url = self.build_search_url(query, num_images)
+        soup = self.fetch_html(url)
+        urls = extract_image_urls_from_soup(soup, num_images, self.cfg.extract_params)
+        logger.info(f"Found {len(urls)} image URLs")
+        return urls
 
     def manage_searching_images(self, query, num_images=10):
         all_urls = []
@@ -49,10 +43,9 @@ class ImageSearcher:
         logger.info("--- Trying Searching ---")
         urls = self.search_images(query, num_images)
 
-        for url in urls:
-            if url not in all_urls:
-                all_urls.append(url)
+        all_urls += urls
+        all_urls = list(set(all_urls))
 
         logger.info(f"Added {len(urls)} new URLs")
         logger.info(f"Total found {len(all_urls)} unique URLs")
-        return all_urls[:num_images]
+        return all_urls
