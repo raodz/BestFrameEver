@@ -7,6 +7,7 @@ params:
 count_multiplier: 2
 max_count: 35
 timeout: 15
+parser: "html.parser"
 
 extract_params:
   link_tag: "a"

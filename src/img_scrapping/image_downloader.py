@@ -19,7 +19,7 @@ class ImageDownloader:
 
     def download_image(self, url, filepath):
         try:
-            self.user_agent_manager.update_headers()
+            self.user_agent_manager.rotate_user_agent()
             session = self.user_agent_manager.get_session()
             response = session.get(url, timeout=15, stream=True)
             response.raise_for_status()
