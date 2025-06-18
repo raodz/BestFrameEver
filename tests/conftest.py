@@ -1,12 +1,12 @@
 import os
 
 import pytest
-import torch
-from omegaconf import OmegaConf
 
 from src.dataset_preparing.frames_list_creator import FramesListCreator
 from src.dataset_preparing.movie import Movie
-from src.prediction.models.model import DetectionHead, Detector
+from src.utils.paths import KEY_PATH
+
+has_key = os.path.exists(KEY_PATH)
 
 
 @pytest.fixture(params=["sample_avi_video.avi", "sample_mp4_video.mp4"])
@@ -31,39 +31,12 @@ def flc(movie):
     return FramesListCreator(movie)
 
 
-@pytest.fixture(params=[1, 2, 4, 8, 16])
-def sample_input(request):
-    batch_size = request.param
-    return torch.randn(batch_size, 3, 448, 448)
+skip_if_key = pytest.mark.skipif(
+    has_key,
+    reason="Vertex API key found — skipping mocked tests in favour of live API tests",
+)
 
-
-@pytest.fixture
-def cfg():
-    return OmegaConf.create(
-        {
-            "model": {
-                "num_classes": 20,
-                "num_boxes": 2,
-                "input_size": [224, 224],
-                "device": None,
-                "detection_head": {
-                    "hidden_size": 4096,
-                },
-            },
-            "preprocessing": {
-                "mean": [0.485, 0.456, 0.406],
-                "std": [0.229, 0.224, 0.225],
-            },
-            "postprocessing": {"conf_threshold": 0.5, "iou_threshold": 0.4},
-        }
-    )
-
-
-@pytest.fixture
-def detection_head(cfg):
-    return DetectionHead(input_shape=(2048, 7, 7), cfg=cfg)
-
-
-@pytest.fixture
-def detector(cfg):
-    return Detector(cfg=cfg)
+skip_if_no_key = pytest.mark.skipif(
+    not has_key,
+    reason="No local Vertex API key file found — skipping live API tests",
+)
