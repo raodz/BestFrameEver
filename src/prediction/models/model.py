@@ -180,16 +180,12 @@ class Detector(BaseDetector):
 
             # Postprocessing
             boxes, scores, classes = self.postprocessor(output, img_size)
-            print(f"   Detekcje przed filtracją: {len(boxes)}")
 
             # Confidence filter
             keep_idx = torch.where(scores > self.conf_threshold)[0]
             boxes = boxes[keep_idx]
             scores = scores[keep_idx]
             classes = classes[keep_idx]
-            print(
-                f"   Detekcje po threshold (conf>{self.conf_threshold}): {len(boxes)}"
-            )
 
             # Non-Max Suppression
             if boxes.numel() > 0:
