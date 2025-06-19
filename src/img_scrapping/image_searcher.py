@@ -10,11 +10,11 @@ logger = setup_logger()
 
 
 class ImageSearcher:
-    def __init__(self, cfg, user_agent_manager):
-        self.cfg = cfg
+    def __init__(self, cfg_image_searcher, user_agent_manager):
+        self.cfg = cfg_image_searcher
         self.user_agent_manager = user_agent_manager
 
-    def build_search_url(self, query, num_images):
+    def build_search_url(self, query, num_images) -> str:
         params = OmegaConf.to_container(self.cfg.params, resolve=True)
         params["q"] = query
         params["count"] = str(
@@ -27,12 +27,13 @@ class ImageSearcher:
         session = self.user_agent_manager.get_session()
         response = session.get(url, timeout=self.cfg.timeout)
         response.raise_for_status()
-        return BeautifulSoup(response.text, self.cfg.parser)
+        return response
 
     def search_images(self, query, num_images):
         logger.info(f"Searching Images: {query}")
         url = self.build_search_url(query, num_images)
-        soup = self.fetch_html(url)
+        response = self.fetch_html(url)
+        soup = BeautifulSoup(response.text, self.cfg.parser)
         urls = extract_image_urls_from_soup(soup, num_images, self.cfg.extract_params)
         logger.info(f"Found {len(urls)} image URLs")
         return urls

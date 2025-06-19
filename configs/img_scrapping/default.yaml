@@ -3,6 +3,7 @@ defaults:
   - user_agent_manager: default
   - image_searcher: default
   - get_actor_images: default
+  - image_downloader: default
 
 
 img_scrapping:

@@ -5,10 +5,10 @@ from omegaconf import OmegaConf
 
 
 class UserAgentManager:
-    def __init__(self, cfg):
-        self.user_agents = cfg.user_agents
+    def __init__(self, cfg_user_agent_manager):
+        self.user_agents = cfg_user_agent_manager.user_agents
         self.session = requests.Session()
-        self.headers = cfg.headers
+        self.headers = cfg_user_agent_manager.headers
         self.rotate_user_agent()
 
     def rotate_user_agent(self):
