@@ -1,0 +1,4 @@
+_target_: src.prediction.models.postprocessor.Postprocessor
+num_boxes: 2
+num_classes: 20
+grid_size: ${detector.grid_size}
