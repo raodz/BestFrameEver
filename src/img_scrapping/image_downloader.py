@@ -1,69 +1,75 @@
-import logging
 import os
 import random
-import re
 import time
 
-import cv2
-import numpy as np
-
 from src.img_scrapping.image_validation import is_suitable_for_face_detection
+from src.img_scrapping.img_download_utils import (
+    build_actor_directory,
+    bytes_to_cv_image,
+    get_search_variants,
+    normalize_channels,
+    prepare_actor_dir_name,
+    read_image_data,
+    save_as_jpg,
+)
+from src.logging_management import setup_logger
 
-logger = logging.getLogger(__name__)
+logger = setup_logger()
 
 
 class ImageDownloader:
-    def __init__(self, user_agent_manager, searcher):
+    def __init__(self, cfg_image_downloader, user_agent_manager, searcher):
+        self.cfg = cfg_image_downloader
         self.user_agent_manager = user_agent_manager
         self.searcher = searcher
 
-    def download_image(self, url, filepath):
-        try:
-            self.user_agent_manager.rotate_user_agent()
-            session = self.user_agent_manager.get_session()
-            response = session.get(url, timeout=15, stream=True)
-            response.raise_for_status()
+    def _download_image(self, url, filepath):
+        response = self.searcher.fetch_html(url)
+        image_bytes = read_image_data(response, chunk_size=self.cfg.chunk_size)
 
-            image_data = b""
-            for chunk in response.iter_content(chunk_size=8192):
-                image_data += chunk
+        is_suitable, reason = is_suitable_for_face_detection(image_bytes)
+        if not is_suitable:
+            logger.warning(f"Rejected image: {reason}")
+            return False, "Unsuitable for face detection"
 
-            is_suitable, reason = is_suitable_for_face_detection(image_data)
+        img = bytes_to_cv_image(image_bytes)
+        if img is None:
+            return False, "Failed to decode image"
 
-            if not is_suitable:
-                return False, f"Unsuitable: {reason}"
+        img = normalize_channels(img)
+        save_as_jpg(img, filepath)
 
-            image_array = np.frombuffer(image_data, dtype=np.uint8)
-            img = cv2.imdecode(image_array, cv2.IMREAD_UNCHANGED)
+        return True, "Saved successfully"
 
-            if img is None:
-                return False, "Failed to decode image"
+    def _download_images_batch(
+        self, urls, actor_dir, base_name, total_downloaded, max_images, counter
+    ):
+        downloaded = 0
+        for url in urls:
+            if total_downloaded + downloaded >= max_images:
+                break
 
-            if img.shape[2] == 4:
-                img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
-            elif img.shape[2] == 1:
-                img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+            filename = f"{base_name}_{counter:03d}.jpg"
+            filepath = os.path.join(actor_dir, filename)
+            logger.info(f"Downloading [{counter}]: {filename}")
 
-            filepath_jpg = filepath.rsplit(".", 1)[0] + ".jpg"
-            cv2.imwrite(filepath_jpg, img, [cv2.IMWRITE_JPEG_QUALITY, 95])
+            success, reason = self._download_image(url, filepath)
 
-            return True, "Saved successfully"
+            if success:
+                downloaded += 1
+                counter += 1
+                logger.info(f"Downloaded: {filename}")
+            else:
+                logger.warning(f"Skipped: {reason}")
 
-        except Exception as e:
-            return False, f"Download error: {e}"
+            time.sleep(random.uniform(1, 2))
 
-    def download_images_for_actor(self, actor_name, num_images=10, output_dir="data"):
-        safe_actor_name = re.sub(r"[^\w\s-]", "", actor_name).strip()
-        safe_actor_name = re.sub(r"[-\s]+", "_", safe_actor_name)
+        return downloaded, counter
 
-        actor_dir = os.path.join(output_dir, safe_actor_name)
-        os.makedirs(actor_dir, exist_ok=True)
-
-        search_variants = [
-            f"{actor_name} actor portrait",
-            f"{actor_name} headshot",
-            f"{actor_name} face photo",
-        ]
+    def download_images_for_actor(self, actor_name, num_images, output_dir):
+        actor_dir = build_actor_directory(output_dir, actor_name)
+        search_variants = get_search_variants(actor_name)
+        actor_dir_name = prepare_actor_dir_name(actor_name)
 
         logger.info(f"=== Downloading images for: {actor_name} ===")
         logger.info(f"Target directory: {actor_dir}")
@@ -78,42 +84,30 @@ class ImageDownloader:
 
             logger.info(f"--- Searching: {variant} ---")
             remaining = num_images - total_downloaded
-            images_for_variant = min(
-                remaining, max(1, remaining // len(search_variants))
-            )
+            n_variants = len(search_variants)
+            n_images_suggested = max(1, remaining // n_variants)
+            n_images_for_variant = min(remaining, n_images_suggested)
 
             image_urls = self.searcher.manage_searching_images(
-                variant, images_for_variant * 2
+                variant, n_images_for_variant * self.cfg.n_fetch_multiplier
             )
-
             if not image_urls:
                 logger.warning(f"No results for: {variant}")
                 continue
 
-            for url in image_urls:
-                if total_downloaded >= num_images:
-                    break
-
-                filename = f"{safe_actor_name}_{image_counter:03d}.jpg"
-                filepath = os.path.join(actor_dir, filename)
-
-                logger.info(f"Downloading [{image_counter}]: {filename}")
-
-                success, reason = self.download_image(url, filepath)
-
-                if success:
-                    total_downloaded += 1
-                    image_counter += 1
-                    logger.info(f"Downloaded: {filename}")
-                else:
-                    logger.warning(f"Skipped: {reason}")
-
-                time.sleep(random.uniform(1, 2))
+            downloaded, image_counter = self._download_images_batch(
+                image_urls,
+                actor_dir,
+                actor_dir_name,
+                total_downloaded,
+                num_images,
+                image_counter,
+            )
+            total_downloaded += downloaded
 
             if variant != search_variants[-1]:
-                time.sleep(3)
+                time.sleep(self.cfg.time_sleep_between_variants)
 
         logger.info(f"Completed! Downloaded {total_downloaded}/{num_images} images")
         logger.info(f"Location: {actor_dir}")
-
         return total_downloaded, actor_dir
