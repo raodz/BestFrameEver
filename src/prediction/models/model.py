@@ -3,13 +3,13 @@ import torch
 from torch import nn
 from torchvision import models
 
-from src.constants import N_BOX_COORDS
 from src.prediction.models.base_detection_head import BaseDetectionHead
 from src.prediction.models.base_detector import BaseDetector
 from src.prediction.models.base_feature_extractor import BaseFeatureExtractor
 from src.prediction.models.postprocessor import Postprocessor
 from src.prediction.models.preprocessor import Preprocessor
-from utils import nms, select_device
+from src.utils.constants import N_BOX_COORDS
+from src.utils.utils import nms, select_device
 
 
 class ResNet50FE(BaseFeatureExtractor):

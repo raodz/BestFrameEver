@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import torch
 
-from src.constants import RGB_CHANNELS
+from src.utils.constants import RGB_CHANNELS
 
 
 class Preprocessor:

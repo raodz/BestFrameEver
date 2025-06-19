@@ -1,6 +1,6 @@
 import torch
 
-from src.constants import N_BOX_COORDS
+from src.utils.constants import N_BOX_COORDS
 
 
 class Postprocessor:
