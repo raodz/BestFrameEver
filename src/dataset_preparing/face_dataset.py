@@ -5,7 +5,7 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
-from utils import parse_bbox
+from src.utils.utils import parse_bbox
 
 
 class FaceDataset(Dataset):
