@@ -30,6 +30,28 @@ def load_yaml_config(relative_path: str):
 
 
 def box_iou(box1: torch.Tensor, box2: torch.Tensor) -> torch.Tensor:
+    """
+    Compute the Intersection over Union (IoU) between two sets of bounding boxes.
+
+    Parameters
+    ----------
+    box1 : torch.Tensor
+        Tensor of shape (N, 4), where each row is a box defined as [x1, y1, x2, y2].
+    box2 : torch.Tensor
+        Tensor of shape (M, 4), where each row is a box defined as [x1, y1, x2, y2].
+
+    Returns
+    -------
+    torch.Tensor
+        IoU matrix of shape (N, M), where the value at [i, j] is the IoU between box1[i] and box2[j].
+
+    Notes
+    -----
+    The boxes must be in [x1, y1, x2, y2] format, where
+        (x1, y1) is the top-left corner,
+        (x2, y2) is the bottom-right corner.
+    The function handles broadcasting internally to compute pairwise IoU.
+    """
     area1 = (box1[:, 2] - box1[:, 0]) * (box1[:, 3] - box1[:, 1])
     area2 = (box2[:, 2] - box2[:, 0]) * (box2[:, 3] - box2[:, 1])
 
