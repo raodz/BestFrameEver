@@ -4,9 +4,11 @@ import pytest
 
 from src.dataset_preparing.frames_list_creator import FramesListCreator
 from src.dataset_preparing.movie import Movie
-from src.prediction.models.model import Detector, ResNet50FE, YoloV1
+from src.prediction.models.detector import Detector
 from src.prediction.models.postprocessor import Postprocessor
 from src.prediction.models.preprocessor import Preprocessor
+from src.prediction.models.resnet50fe import ResNet50FE
+from src.prediction.models.yolo_v1 import YoloV1
 from src.utils.paths import KEY_PATH
 
 has_key = os.path.exists(KEY_PATH)

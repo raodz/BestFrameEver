@@ -4,8 +4,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from src.prediction.models.base_detection_head import BaseDetectionHead
-from src.prediction.models.base_feature_extractor import BaseFeatureExtractor
+from src.prediction.models.base.base_detection_head import BaseDetectionHead
+from src.prediction.models.base.base_feature_extractor import BaseFeatureExtractor
 
 
 class BaseDetector(nn.Module, ABC):
