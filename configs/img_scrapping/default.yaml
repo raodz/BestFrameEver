@@ -1,0 +1,11 @@
+defaults:
+  - _self_
+  - user_agent_manager: default
+  - image_searcher: default
+  - get_actor_images: default
+  - image_downloader: default
+
+
+img_scrapping:
+  output_dir: "actors_images/"
+  image_count: 5

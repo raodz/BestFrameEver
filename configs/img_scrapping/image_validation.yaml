@@ -1,0 +1,18 @@
+skip_patterns:
+  - logo
+  - icon
+  - avatar
+  - thumb
+  - button
+  - banner
+  - pixel
+  - 1x1
+  - transparent
+  - spacer
+  - blank
+
+allowed_extensions:
+  - .jpg
+  - .jpeg
+  - .png
+  - .webp
