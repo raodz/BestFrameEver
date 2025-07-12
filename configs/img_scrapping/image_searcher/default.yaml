@@ -1,0 +1,18 @@
+url_base: "https://www.bing.com/images/search"
+
+params:
+  first: "1"
+  qft: "+filterui:aspect-square+filterui:imagesize-medium"
+
+count_multiplier: 2
+max_count: 35
+timeout: 15
+parser: "html.parser"
+
+extract_params:
+  link_tag: "a"
+  link_class: "iusc"
+  json_attr: "m"
+  json_url_key: "murl"
+  fallback_tag: "img"
+  fallback_src_attrs: ["src", "data-src"]
