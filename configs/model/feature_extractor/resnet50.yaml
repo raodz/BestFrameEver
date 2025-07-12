@@ -1,0 +1,2 @@
+grid_size: ${detector.grid_size}
+output_feature_channels: 2048
